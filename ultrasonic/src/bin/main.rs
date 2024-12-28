@@ -51,29 +51,31 @@ fn main() -> ! {
     let rtc = Rtc::new(peripherals.LPWR);
 
     loop {
-        delay.delay_millis(50);
+        delay.delay_millis(5);
+
+        // Trigger ultrasonic waves
         trig.set_low();
         delay.delay_micros(2);
         trig.set_high();
         delay.delay_micros(10);
         trig.set_low();
 
+        // Measure the duration the signal remains high
         while echo.is_low() {}
         let time1 = rtc.current_time();
-
         while echo.is_high() {}
         let time2 = rtc.current_time();
-
         let pulse_width = match (time2 - time1).num_microseconds() {
             Some(pw) => pw as f64,
             None => continue,
         };
 
+        // Derive distance from the pulse width
         let distance = (pulse_width * 0.0343) / 2.0;
-
         // esp_println::println!("Pulse Width: {}", pulse_width);
         // esp_println::println!("Distance: {}", distance);
 
+        // Our own logic to calculate duty cycle percentage for the distance
         let duty_pct: u8 = if distance < 30.0 {
             let ratio = (30.0 - distance) / 30.0;
             let p = (ratio * 100.0) as u8;
@@ -85,6 +87,7 @@ fn main() -> ! {
         if let Err(e) = channel0.set_duty(duty_pct) {
             esp_println::println!("Failed to set duty cycle: {:?}", e);
         }
+
         delay.delay_millis(60);
     }
 }
