@@ -18,13 +18,13 @@ fn main() -> ! {
     let mut led = Output::new(peripherals.GPIO33, Level::Low);
 
     let adc_pin = peripherals.GPIO4;
-    let mut adc1_config = AdcConfig::new();
-    let mut pin = adc1_config.enable_pin(adc_pin, Attenuation::Attenuation11dB);
-    let mut adc1 = Adc::new(peripherals.ADC2, adc1_config);
+    let mut adc2_config = AdcConfig::new();
+    let mut pin = adc2_config.enable_pin(adc_pin, Attenuation::Attenuation11dB);
+    let mut adc2 = Adc::new(peripherals.ADC2, adc2_config);
     let delay = Delay::new();
 
     loop {
-        let pin_value: u16 = nb::block!(adc1.read_oneshot(&mut pin)).unwrap();
+        let pin_value: u16 = nb::block!(adc2.read_oneshot(&mut pin)).unwrap();
         esp_println::println!("{}", pin_value);
 
         if pin_value > 3500 {
