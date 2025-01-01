@@ -24,7 +24,7 @@ fn main() -> ! {
         config
     });
 
-    let mut buzzer = peripherals.GPIO4;
+    let mut buzzer = peripherals.GPIO33;
 
     let ledc = Ledc::new(peripherals.LEDC);
 
