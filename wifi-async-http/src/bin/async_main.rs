@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
 
-use core::str::FromStr;
+// use core::str::FromStr;
 
 use embassy_executor::Spawner;
 use embassy_net::{
@@ -21,7 +21,7 @@ use esp_wifi::{
     },
     EspWifiController,
 };
-use heapless::String;
+// use heapless::String;
 use log::info;
 use reqwless::client::{HttpClient, TlsConfig};
 

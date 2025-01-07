@@ -52,7 +52,7 @@ embassy-time = { version = "0.3.1", features = ["generic-queue-8"] }
 esp-hal-embassy = { version = "0.5.0", features = ["esp32"] }
 static_cell = { version = "2.1.0", features = ["nightly"] }
 critical-section = "1.2.0"
-reqwless = { git = "https://github.com/drogue-iot/reqwless.git", rev = "e6ebe0304261d175445030c671a3b172c576e400", default-features = false, features = [
+reqwless = { version = "0.12.0", default-features = false, features = [
     "embedded-tls",
 ] }
 

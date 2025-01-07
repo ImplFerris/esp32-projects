@@ -1384,7 +1384,8 @@ checksum = "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c"
 [[package]]
 name = "reqwless"
 version = "0.12.1"
-source = "git+https://github.com/drogue-iot/reqwless.git?rev=e6ebe0304261d175445030c671a3b172c576e400#e6ebe0304261d175445030c671a3b172c576e400"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "66584b58c3b0cd8cfea750408a932fe86df79ee05ccc87ee745a8e6be4a1abe0"
 dependencies = [
  "base64",
  "buffered-io",
