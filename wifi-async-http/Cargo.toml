@@ -23,8 +23,8 @@ embassy-net = { version = "0.4.0", features = [
     "udp",
     "dhcpv4",
     "medium-ethernet",
-    "dhcpv4-hostname",
     "dns",
+    # "dhcpv4-hostname",
 ] }
 
 esp-wifi = { version = "0.11.0", default-features = false, features = [

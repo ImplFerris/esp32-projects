@@ -72,8 +72,8 @@ async fn main(spawner: Spawner) {
     let (wifi_interface, controller) =
         esp_wifi::wifi::new_with_mode(&wifi_init, wifi, WifiStaDevice).unwrap();
 
-    let mut dhcp_config = DhcpConfig::default();
-    dhcp_config.hostname = Some(String::from_str("implRust").unwrap());
+    let dhcp_config = DhcpConfig::default();
+    // dhcp_config.hostname = Some(String::from_str("implRust").unwrap());
 
     let net_config = embassy_net::Config::dhcpv4(dhcp_config);
 
