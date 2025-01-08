@@ -17,7 +17,7 @@ use esp_wifi::{
     EspWifiController,
 };
 use log::info;
-use picoserve::{routing, AppBuilder, AppRouter};
+use picoserve::{response::File, routing, AppBuilder, AppRouter};
 
 extern crate alloc;
 
@@ -36,7 +36,10 @@ impl AppBuilder for AppProps {
     type PathRouter = impl routing::PathRouter;
 
     fn build_app(self) -> picoserve::Router<Self::PathRouter> {
-        picoserve::Router::new().route("/", routing::get(|| async move { "Hello World" }))
+        picoserve::Router::new().route(
+            "/",
+            routing::get_service(File::html(include_str!("index.html"))),
+        )
     }
 }
 
