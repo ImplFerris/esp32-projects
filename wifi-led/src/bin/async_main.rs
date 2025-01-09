@@ -2,8 +2,10 @@
 #![no_main]
 #![feature(impl_trait_in_assoc_type)]
 
+use core::{net::Ipv4Addr, str::FromStr};
+
 use embassy_executor::Spawner;
-use embassy_net::{DhcpConfig, Runner, Stack, StackResources};
+use embassy_net::{Ipv4Cidr, Runner, Stack, StackResources, StaticConfigV4};
 use embassy_time::{Duration, Timer};
 use esp_alloc as _;
 use esp_backtrace as _;
@@ -16,6 +18,7 @@ use esp_wifi::{
     },
     EspWifiController,
 };
+use heapless::Vec;
 use log::info;
 use picoserve::{response::File, routing, AppBuilder, AppRouter};
 
@@ -46,6 +49,11 @@ impl AppBuilder for Application {
 const WEB_TASK_POOL_SIZE: usize = 2;
 const SSID: &str = env!("SSID");
 const PASSWORD: &str = env!("PASSWORD");
+
+// IP Address/Subnet mask eg: STATIC_IP=192.168.0.50/24
+const STATIC_IP: &str = env!("STATIC_IP");
+// Gateway IP eg: GATEWAY_IP=192.168.0.1
+const GATEWAY_IP: &str = env!("GATEWAY_IP");
 
 #[main]
 async fn main(spawner: Spawner) {
@@ -79,9 +87,21 @@ async fn main(spawner: Spawner) {
     let (wifi_interface, controller) =
         esp_wifi::wifi::new_with_mode(&wifi_init, wifi, WifiStaDevice).unwrap();
 
-    let dhcp_config = DhcpConfig::default();
+    let Ok(ip_addr) = Ipv4Cidr::from_str(STATIC_IP) else {
+        println!("Invalid STATIC_IP");
+        loop {}
+    };
 
-    let net_config = embassy_net::Config::dhcpv4(dhcp_config);
+    let Ok(gateway) = Ipv4Addr::from_str(GATEWAY_IP) else {
+        println!("Invalid GATEWAY_IP");
+        loop {}
+    };
+
+    let net_config = embassy_net::Config::ipv4_static(StaticConfigV4 {
+        address: ip_addr,
+        gateway: Some(gateway),
+        dns_servers: Vec::new(),
+    });
 
     let (stack, runner) = mk_static!(
         (
