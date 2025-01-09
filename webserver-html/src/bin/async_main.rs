@@ -30,9 +30,9 @@ macro_rules! mk_static {
     }};
 }
 
-struct AppProps;
+struct Application;
 
-impl AppBuilder for AppProps {
+impl AppBuilder for Application {
     type PathRouter = impl routing::PathRouter;
 
     fn build_app(self) -> picoserve::Router<Self::PathRouter> {
@@ -115,7 +115,7 @@ async fn main(spawner: Spawner) {
         Timer::after(Duration::from_millis(500)).await;
     }
 
-    let app = picoserve::make_static!(AppRouter<AppProps>, AppProps.build_app());
+    let app = picoserve::make_static!(AppRouter<Application>, Application.build_app());
 
     let config = picoserve::make_static!(
         picoserve::Config<Duration>,
@@ -178,7 +178,7 @@ async fn net_task(runner: &'static mut Runner<'static, WifiDevice<'static, WifiS
 async fn web_task(
     id: usize,
     stack: Stack<'static>,
-    app: &'static AppRouter<AppProps>,
+    app: &'static AppRouter<Application>,
     config: &'static picoserve::Config<Duration>,
 ) -> ! {
     let port = 80;
