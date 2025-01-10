@@ -63,12 +63,12 @@
 </head>
 <body>
     <div class="button-container">
-        <button class="btn-on" onclick="sendRequest('on')">Turn on LED</button>
-        <button class="btn-off" onclick="sendRequest('off')">Turn off LED</button>
+        <button class="btn-on" onclick="sendRequest(true)">Turn on LED</button>
+        <button class="btn-off" onclick="sendRequest(false)">Turn off LED</button>
     </div>
 
     <script>
-        function sendRequest(action) {
+        function sendRequest(is_on) {
             const url = 'http:///192.168.0.50/led'; // Replace with STATIC IP of ESP32
 
             fetch(url, {
@@ -76,7 +76,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ action })
+                body: JSON.stringify({ is_on })
             })
             .then(response => {
                 if (response.ok) {

@@ -1,7 +1,6 @@
 use core::{include_str, sync::atomic::Ordering};
 use embassy_net::Stack;
 use embassy_time::Duration;
-use heapless::String;
 use picoserve::{
     response::{File, IntoResponse},
     routing, AppBuilder, AppRouter, Router,
@@ -73,7 +72,7 @@ impl AppBuilder for Application {
 }
 
 async fn led_handler(input: picoserve::extract::Json<LedRequest, 0>) -> impl IntoResponse {
-    if input.0.action == "on" {
+    if input.0.is_on {
         crate::led::LED_STATE.store(true, Ordering::Relaxed);
     } else {
         crate::led::LED_STATE.store(false, Ordering::Relaxed);
@@ -88,5 +87,5 @@ struct LedResponse {
 
 #[derive(serde::Deserialize)]
 struct LedRequest {
-    action: String<5>,
+    is_on: bool,
 }
