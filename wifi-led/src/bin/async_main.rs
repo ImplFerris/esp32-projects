@@ -5,7 +5,11 @@
 use embassy_executor::Spawner;
 use esp_alloc as _;
 use esp_backtrace as _;
-use esp_hal::{prelude::*, rng::Rng};
+use esp_hal::{
+    gpio::{Level, Output},
+    prelude::*,
+    rng::Rng,
+};
 use esp_println::println;
 use esp_wifi::EspWifiController;
 use log::info;
@@ -38,8 +42,16 @@ async fn main(spawner: Spawner) {
         esp_wifi::init(timg0.timer0, rng.clone(), peripherals.RADIO_CLK).unwrap()
     );
 
+    // Configure and Start Wi-Fi tasks
     let stack = lib::wifi::start_wifi(wifi_init, peripherals.WIFI, rng, &spawner).await;
 
+    // LED Task
+    spawner.must_spawn(lib::led::led_task(Output::new(
+        peripherals.GPIO2,
+        Level::Low,
+    )));
+
+    // Web Tasks
     let web = lib::web::WebApp::default();
     for id in 0..lib::web::WEB_TASK_POOL_SIZE {
         spawner.must_spawn(lib::web::web_task(id, *stack, web.app, web.config));

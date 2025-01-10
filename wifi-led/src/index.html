@@ -69,7 +69,7 @@
 
     <script>
         function sendRequest(action) {
-            const url = 'http://your-server-address/api/led'; // Replace with your server's endpoint
+            const url = 'http:///192.168.0.50/led'; // Replace with STATIC IP of ESP32
 
             fetch(url, {
                 method: 'POST',
@@ -86,7 +86,7 @@
             })
             .then(data => {
                 console.log('Success:', data);
-                alert(LED turned ${action});
+                //alert(LED turned ${action});
             })
             .catch(error => {
                 console.error('Error:', error);

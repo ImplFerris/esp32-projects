@@ -1216,6 +1216,7 @@ dependencies = [
  "heapless",
  "log",
  "picoserve",
+ "serde",
  "smoltcp 0.11.0",
  "static_cell",
 ]
