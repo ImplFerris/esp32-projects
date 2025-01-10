@@ -71,15 +71,6 @@ impl AppBuilder for Application {
     }
 }
 
-async fn led_handler(input: picoserve::extract::Json<LedRequest, 0>) -> impl IntoResponse {
-    if input.0.is_on {
-        crate::led::LED_STATE.store(true, Ordering::Relaxed);
-    } else {
-        crate::led::LED_STATE.store(false, Ordering::Relaxed);
-    }
-    picoserve::response::Json(LedResponse { success: true })
-}
-
 #[derive(serde::Serialize)]
 struct LedResponse {
     success: bool,
@@ -88,4 +79,10 @@ struct LedResponse {
 #[derive(serde::Deserialize)]
 struct LedRequest {
     is_on: bool,
+}
+
+async fn led_handler(input: picoserve::extract::Json<LedRequest, 0>) -> impl IntoResponse {
+    crate::led::LED_STATE.store(input.0.is_on, Ordering::Relaxed);
+
+    picoserve::response::Json(LedResponse { success: true })
 }
