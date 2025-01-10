@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LED Control</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #000000, #434343);
+            color: white;
+        }
+
+        .button-container {
+            text-align: center;
+        }
+
+        button {
+            display: block;
+            width: 200px;
+            padding: 15px;
+            margin: 10px auto;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        button:active {
+            transform: scale(0.95);
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-on {
+            background: linear-gradient(95deg, #99C2c8, #1f8037);
+            color: white;
+            box-shadow: 0px 4px 6px rgba(31, 64, 55, 0.4);
+        }
+
+        .btn-on:hover {
+            background: linear-gradient(145deg, #162d26, #81e6b9);
+            box-shadow: 0px 6px 8px rgba(22, 45, 38, 0.5);
+        }
+
+        .btn-off {
+            background: linear-gradient(45deg, #ff9966, #ff5e62);
+            color: white;
+            box-shadow: 0px 4px 6px rgba(255, 99, 102, 0.4);
+        }
+
+        .btn-off:hover {
+            background: linear-gradient(45deg, #e68957, #e45254);
+            box-shadow: 0px 6px 8px rgba(230, 137, 87, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="button-container">
+        <button class="btn-on" onclick="sendRequest('on')">Turn on LED</button>
+        <button class="btn-off" onclick="sendRequest('off')">Turn off LED</button>
+    </div>
+
+    <script>
+        function sendRequest(action) {
+            const url = 'http://your-server-address/api/led'; // Replace with your server's endpoint
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ action })
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Network response was not ok');
+            })
+            .then(data => {
+                console.log('Success:', data);
+                alert(LED turned ${action});
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to send the request');
+            });
+        }
+    </script>
+</body>
+</html>
