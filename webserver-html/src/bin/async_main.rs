@@ -41,9 +41,14 @@ async fn main(spawner: Spawner) {
 
     let stack = lib::wifi::start_wifi(wifi_init, peripherals.WIFI, rng, &spawner).await;
 
-    let web = lib::web::WebApp::default();
+    let web_app = lib::web::WebApp::default();
     for id in 0..lib::web::WEB_TASK_POOL_SIZE {
-        spawner.must_spawn(lib::web::web_task(id, *stack, web.app, web.config));
+        spawner.must_spawn(lib::web::web_task(
+            id,
+            *stack,
+            web_app.router,
+            web_app.config,
+        ));
     }
     println!("Web server started...");
 }
