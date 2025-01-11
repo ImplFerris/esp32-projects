@@ -22,13 +22,17 @@ extern crate alloc;
 // Unlike Station mode, You can give any IP range(private) that you like
 // IP Address/Subnet mask eg: STATIC_IP=192.168.13.37/24
 const STATIC_IP: &str = "192.168.13.37/24";
-// Gateway IP eg: GATEWAY_IP="192.168.13.1"
-const GATEWAY_IP: &str = "192.168.13.1";
+// Gateway IP eg: GATEWAY_IP="192.168.13.37"
+const GATEWAY_IP: &str = "192.168.13.37";
+
+const PASSWORD: &str = env!("PASSWORD");
+const SSID: &str = env!("SSID");
 
 #[embassy_executor::task]
 async fn connection_task(mut controller: WifiController<'static>) {
     println!("start connection task");
     println!("Device capabilities: {:?}", controller.capabilities());
+
     loop {
         if esp_wifi::wifi::wifi_state() == WifiState::ApStarted {
             // wait until we're no longer connected
@@ -37,11 +41,13 @@ async fn connection_task(mut controller: WifiController<'static>) {
         }
 
         if !matches!(controller.is_started(), Ok(true)) {
-            let client_config = Configuration::AccessPoint(AccessPointConfiguration {
-                ssid: "implRust".try_into().unwrap(), // Use whatever Wi-Fi name you want
+            let wifi_config = Configuration::AccessPoint(AccessPointConfiguration {
+                ssid: SSID.try_into().unwrap(), // Use whatever Wi-Fi name you want
+                password: PASSWORD.try_into().unwrap(), // S/et your password
+                auth_method: esp_wifi::wifi::AuthMethod::WPA2Personal,
                 ..Default::default()
             });
-            controller.set_configuration(&client_config).unwrap();
+            controller.set_configuration(&wifi_config).unwrap();
             println!("Starting wifi");
             controller.start_async().await.unwrap();
             println!("Wifi started!");
