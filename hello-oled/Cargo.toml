@@ -20,6 +20,7 @@ esp-hal-embassy = { version = "0.5.0", features = ["esp32"] }
 static_cell = { version = "2.1.0", features = ["nightly"] }
 critical-section = "1.2.0"
 # ssd1306 = { version = "0.9.0", features = ["async"] }
+# https://github.com/rust-embedded-community/ssd1306/issues/219
 ssd1306 = { git = "https://github.com/rust-embedded-community/ssd1306.git", rev = "f3a2f7aca421fbf3ddda45ecef0dfd1f0f12330e", features = [
     "async",
 ] }
