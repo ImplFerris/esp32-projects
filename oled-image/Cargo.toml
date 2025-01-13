@@ -1,0 +1,44 @@
+[package]
+name = "oled-image"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+esp-backtrace = { version = "0.14.2", features = [
+    "esp32",
+    "exception-handler",
+    "panic-handler",
+    "println",
+]}
+
+esp-hal = { version = "0.22.0", features = [
+    "esp32",
+] }
+esp-println = { version = "0.12.0", features = ["esp32", "log"] }
+log = { version = "0.4.21" }
+embassy-executor = { version = "0.6.0",  features = [
+    "task-arena-size-12288",
+] }
+embassy-time     = { version = "0.3.1",  features = ["generic-queue-8"] }
+esp-hal-embassy  = { version = "0.5.0",  features = ["esp32"] }
+static_cell      = { version = "2.1.0",  features = ["nightly"] }
+critical-section = "1.2.0"
+ssd1306 = { git = "https://github.com/rust-embedded-community/ssd1306.git", rev = "f3a2f7aca421fbf3ddda45ecef0dfd1f0f12330e", features = [
+    "async",
+] }
+embedded-graphics = "0.8.1"
+
+
+[profile.dev]
+# Rust debug is too slow.
+# For debug builds always builds with some optimization
+opt-level = "s"
+
+[profile.release]
+codegen-units = 1        # LLVM can perform better optimizations using a single thread
+debug = 2
+debug-assertions = false
+incremental = false
+lto = 'fat'
+opt-level = 's'
+overflow-checks = false
