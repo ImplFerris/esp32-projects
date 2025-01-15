@@ -97,15 +97,10 @@ async fn main(_spawner: Spawner) {
         .into_buffered_graphics_mode();
     display.init().await.unwrap();
 
-    //
     let text_style = MonoTextStyleBuilder::new()
         .font(&FONT_6X10)
         .text_color(BinaryColor::On)
         .build();
-
-    Text::with_baseline("Hello, Rust!", Point::new(0, 16), text_style, Baseline::Top)
-        .draw(&mut display)
-        .unwrap();
 
     // Heapless for string formatting
     let mut buffer: String<64> = String::new();
