@@ -10,40 +10,38 @@ use esp_hal::{
 };
 use log::info;
 
-const fn calculate_adc_max(adc_bits: u8) -> u16 {
-    (1 << adc_bits) - 1
-}
-const ADC_BITS: u8 = 12; // 12-bit ADC in Pico
-const ADC_MAX: u16 = calculate_adc_max(ADC_BITS); // 4095 for 12-bit ADC
-
-const B_VALUE: f64 = 3950.0;
-const REF_RES: f64 = 10_000.0; // Reference resistance in ohms (10kΩ)
-const REF_TEMP: f64 = 25.0; // Reference temperature 25°C
-
-// We have already covered about this formula in ADC chpater
-fn adc_to_resistance(adc_value: f64, ref_res: f64) -> f64 {
-    let x: f64 = (ADC_MAX as f64 / adc_value) - 1.0;
-    // ref_res * x // If you connected thermistor to power supply
-    ref_res / x
-
-    //alternative calculating vout and then calculating R2
-    // let vout = (adc_value as f64 / ADC_MAX as f64) * VREF;
-    // REF_RES * (vout / (VREF - vout))
-}
-
-// B Equation to convert resistance to temperature
-fn calculate_temperature(current_res: f64, ref_res: f64, ref_temp: f64, b_val: f64) -> f64 {
-    let ln_value = libm::log(current_res / ref_res); // Use libm for `no_std`
-    let inv_t = (1.0 / ref_temp) + ((1.0 / b_val) * ln_value);
-    1.0 / inv_t
-}
-
-fn kelvin_to_celsius(kelvin: f64) -> f64 {
+const fn kelvin_to_celsius(kelvin: f64) -> f64 {
     kelvin - 273.15
 }
 
-fn celsius_to_kelvin(celsius: f64) -> f64 {
+const fn celsius_to_kelvin(celsius: f64) -> f64 {
     celsius + 273.15
+}
+
+const ADC_MAX: f64 = 4095.0; // 4095 for 12-bit ADC
+const B_VALUE: f64 = 3950.0;
+
+const REF_TEMP: f64 = 25.0; // Reference temperature 25°C
+const REF_RES: f64 = 10_000.0; // Thermistor resistance at the Reference Temperature(25°C)
+const REF_TEMP_K: f64 = celsius_to_kelvin(REF_TEMP);
+
+// The resistor value that is connected with thermistor in the voltage divider
+const R1_RES: f64 = REF_RES; // 10_000.0 ohms
+
+fn adc_to_resistance(adc_value: f64) -> f64 {
+    let x: f64 = adc_value / (ADC_MAX - adc_value);
+    R1_RES * x
+
+    //alternative calculating vout and then calculating R2
+    // let vout = (adc_value as f64 / ADC_MAX as f64) * VREF;
+    // R1_RES * (vout / (VREF - vout))
+}
+
+// B Equation to convert resistance to temperature
+fn calculate_temperature(current_res: f64, b_val: f64) -> f64 {
+    let ln_value = libm::log(current_res / REF_RES); // Use libm for `no_std`
+    let inv_t = (1.0 / REF_TEMP_K) + ((1.0 / b_val) * ln_value);
+    1.0 / inv_t
 }
 
 #[main]
@@ -73,12 +71,10 @@ async fn main(_spawner: Spawner) {
 
         let adc_value: f64 = ADC_LUT[adc_value as usize];
 
-        let current_res = adc_to_resistance(adc_value, REF_RES);
+        let current_res = adc_to_resistance(adc_value);
         esp_println::println!("R2: {}", current_res);
 
-        let ref_temp = celsius_to_kelvin(REF_TEMP);
-
-        let temperature_kelvin = calculate_temperature(current_res, REF_RES, ref_temp, B_VALUE);
+        let temperature_kelvin = calculate_temperature(current_res, B_VALUE);
         let temperature_celsius = kelvin_to_celsius(temperature_kelvin);
         esp_println::println!("Temperature:{:.2} °C", temperature_celsius);
 
