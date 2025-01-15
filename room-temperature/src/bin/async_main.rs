@@ -68,8 +68,8 @@ async fn main(_spawner: Spawner) {
     loop {
         let adc_value: u16 = nb::block!(adc2.read_oneshot(&mut pin)).unwrap();
         esp_println::println!("ADC: {}", adc_value);
-
         let adc_value: f64 = ADC_LUT[adc_value as usize];
+        esp_println::println!("Corrected ADC: {}", adc_value);
 
         let current_res = adc_to_resistance(adc_value);
         esp_println::println!("R2: {}", current_res);
