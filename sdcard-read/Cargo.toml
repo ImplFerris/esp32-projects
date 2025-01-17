@@ -21,7 +21,6 @@ static_cell = { version = "2.1.0", features = ["nightly"] }
 critical-section = "1.2.0"
 embedded-sdmmc = "0.8.1"
 embedded-hal-bus = "0.2.0"
-chrono = { version = "0.4.39", default-features = false }
 
 [profile.dev]
 # Rust debug is too slow.
