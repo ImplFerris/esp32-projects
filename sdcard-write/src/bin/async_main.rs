@@ -1,6 +1,7 @@
 #![no_std]
 #![no_main]
 
+use chrono::{Datelike, Timelike};
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
 use embedded_hal_bus::spi::ExclusiveDevice;
@@ -10,26 +11,39 @@ use esp_hal::{
     delay::Delay,
     gpio::{Level, Output},
     prelude::*,
+    rtc_cntl::Rtc,
     spi::{
         master::{Config, Spi},
         SpiMode,
     },
 };
-use esp_println::{print, println};
+use esp_println::println;
 use log::info;
 
-#[derive(Default)]
-pub struct DummyTimesource();
+struct SdTimeSource {
+    timer: Rtc<'static>,
+}
 
-impl TimeSource for DummyTimesource {
+impl SdTimeSource {
+    fn new(timer: Rtc<'static>) -> Self {
+        Self { timer }
+    }
+
+    fn current_time(&self) -> chrono::NaiveDateTime {
+        self.timer.current_time()
+    }
+}
+
+impl TimeSource for SdTimeSource {
     fn get_timestamp(&self) -> Timestamp {
+        let now = self.current_time();
         Timestamp {
-            year_since_1970: 0,
-            zero_indexed_month: 0,
-            zero_indexed_day: 0,
-            hours: 0,
-            minutes: 0,
-            seconds: 0,
+            year_since_1970: (now.year() - 1970).unsigned_abs() as u8,
+            zero_indexed_month: now.month().wrapping_sub(1) as u8,
+            zero_indexed_day: now.day().wrapping_sub(1) as u8,
+            hours: now.hour() as u8,
+            minutes: now.minute() as u8,
+            seconds: now.second() as u8,
         }
     }
 }
@@ -65,8 +79,11 @@ async fn main(_spawner: Spawner) {
     let sd_cs = Output::new(peripherals.GPIO5, Level::High);
     let spi = ExclusiveDevice::new(spi, sd_cs, delay).unwrap();
 
+    let rtc = Rtc::new(peripherals.LPWR);
+    let sd_timer = SdTimeSource::new(rtc);
+
     let sdcard = SdCard::new(spi, delay);
-    let mut volume_mgr = VolumeManager::new(sdcard, DummyTimesource::default());
+    let mut volume_mgr = VolumeManager::new(sdcard, sd_timer);
 
     println!("Init SD card controller and retrieve card size...");
     let sd_size = volume_mgr.device().num_bytes().unwrap();
@@ -76,17 +93,18 @@ async fn main(_spawner: Spawner) {
     let mut root_dir = volume0.open_root_dir().unwrap();
 
     let mut my_file = root_dir
-        .open_file_in_dir("ferris.txt", embedded_sdmmc::Mode::ReadOnly)
+        .open_file_in_dir(
+            "ferris.txt",
+            embedded_sdmmc::Mode::ReadWriteCreateOrTruncate,
+        )
         .unwrap();
 
-    while !my_file.is_eof() {
-        let mut buffer = [0u8; 32];
-
-        if let Ok(n) = my_file.read(&mut buffer) {
-            for b in &buffer[..n] {
-                print!("{}", *b as char);
-            }
-        }
+    let line = "Hello, Ferris!";
+    if let Ok(()) = my_file.write(line.as_bytes()) {
+        my_file.flush().unwrap();
+        println!("Written Data");
+    } else {
+        println!("Not wrote");
     }
 
     loop {
