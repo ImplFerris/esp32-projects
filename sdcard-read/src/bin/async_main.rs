@@ -4,7 +4,7 @@
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
 use embedded_hal_bus::spi::ExclusiveDevice;
-use embedded_sdmmc::{TimeSource, Timestamp, VolumeIdx, VolumeManager};
+use embedded_sdmmc::{SdCard, TimeSource, Timestamp, VolumeIdx, VolumeManager};
 use esp_backtrace as _;
 use esp_hal::{
     delay::Delay,
@@ -65,7 +65,7 @@ async fn main(_spawner: Spawner) {
     let sd_cs = Output::new(peripherals.GPIO13, Level::High);
     let spi = ExclusiveDevice::new(spi, sd_cs, delay).unwrap();
 
-    let sdcard = embedded_sdmmc::sdcard::SdCard::new(spi, delay);
+    let sdcard = SdCard::new(spi, delay);
     let mut volume_mgr = VolumeManager::new(sdcard, DummyTimesource::default());
     loop {
         // Timer::after(Duration::from_secs(10)).await;
