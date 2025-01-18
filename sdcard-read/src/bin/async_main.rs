@@ -76,7 +76,7 @@ async fn main(_spawner: Spawner) {
     let mut root_dir = volume0.open_root_dir().unwrap();
 
     let mut my_file = root_dir
-        .open_file_in_dir("ferris.txt", embedded_sdmmc::Mode::ReadOnly)
+        .open_file_in_dir("FERRIS.TXT", embedded_sdmmc::Mode::ReadOnly)
         .unwrap();
 
     while !my_file.is_eof() {

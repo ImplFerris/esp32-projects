@@ -80,7 +80,6 @@ async fn main(_spawner: Spawner) {
     let spi = ExclusiveDevice::new(spi, sd_cs, delay).unwrap();
 
     let rtc = Rtc::new(peripherals.LPWR);
-
     const CURRENT_TIME: &str = env!("CURRENT_DATETIME");
     let current_time = NaiveDateTime::parse_from_str(CURRENT_TIME, "%Y-%m-%d %H:%M:%S").unwrap();
     rtc.set_current_time(current_time);
@@ -99,7 +98,7 @@ async fn main(_spawner: Spawner) {
 
     let mut my_file = root_dir
         .open_file_in_dir(
-            "ferris.txt",
+            "FERRIS.TXT",
             embedded_sdmmc::Mode::ReadWriteCreateOrTruncate,
         )
         .unwrap();
