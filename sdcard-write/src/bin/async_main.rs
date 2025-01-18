@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
 
-use chrono::{Datelike, Timelike};
+use chrono::{Datelike, NaiveDateTime, Timelike};
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
 use embedded_hal_bus::spi::ExclusiveDevice;
@@ -80,6 +80,11 @@ async fn main(_spawner: Spawner) {
     let spi = ExclusiveDevice::new(spi, sd_cs, delay).unwrap();
 
     let rtc = Rtc::new(peripherals.LPWR);
+
+    const CURRENT_TIME: &str = env!("CURRENT_DATETIME");
+    let current_time = NaiveDateTime::parse_from_str(CURRENT_TIME, "%Y-%m-%d %H:%M:%S").unwrap();
+    rtc.set_current_time(current_time);
+
     let sd_timer = SdTimeSource::new(rtc);
 
     let sdcard = SdCard::new(spi, delay);
