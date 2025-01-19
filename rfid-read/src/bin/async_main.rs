@@ -57,8 +57,6 @@ async fn main(_spawner: Spawner) {
             println!("Got atqa");
             Timer::after(Duration::from_millis(50)).await;
             if let Ok(uid) = rfid.select(&atqa) {
-                // println!("{:?}", uid.as_bytes());
-                // Timer::after(Duration::from_millis(500)).await;
                 println!("Reading sector: {}", sector_num);
                 read_sector(&uid, sector_num, &mut rfid);
                 rfid.hlta().unwrap();
