@@ -51,15 +51,38 @@ async fn main(_spawner: Spawner) {
     let spi_interface = SpiInterface::new(spi);
     let mut rfid = Mfrc522::new(spi_interface).init().unwrap();
 
+    let sector_num = 0;
     loop {
         if let Ok(atqa) = rfid.reqa() {
-            println!("Answer To reQuest code A");
+            println!("Got atqa");
             Timer::after(Duration::from_millis(50)).await;
             if let Ok(uid) = rfid.select(&atqa) {
-                print_hex_bytes(uid.as_bytes());
-                Timer::after(Duration::from_millis(500)).await;
+                // println!("{:?}", uid.as_bytes());
+                // Timer::after(Duration::from_millis(500)).await;
+                println!("Reading sector: {}", sector_num);
+                read_sector(&uid, sector_num, &mut rfid);
+                rfid.hlta().unwrap();
+                rfid.stop_crypto1().unwrap();
             }
         }
+    }
+}
+
+fn read_sector<E, COMM: mfrc522::comm::Interface<Error = E>>(
+    uid: &mfrc522::Uid,
+    sector: u8,
+    rfid: &mut Mfrc522<COMM, mfrc522::Initialized>,
+) {
+    const AUTH_KEY: [u8; 6] = [0xFF; 6];
+
+    let block_offset = sector * 4;
+    rfid.mf_authenticate(uid, block_offset, &AUTH_KEY)
+        .map_err(|_| "Auth failed")
+        .unwrap();
+
+    for abs_block in block_offset..block_offset + 4 {
+        let data = rfid.mf_read(abs_block).map_err(|_| "Read failed").unwrap();
+        print_hex_bytes(&data);
     }
 }
 
