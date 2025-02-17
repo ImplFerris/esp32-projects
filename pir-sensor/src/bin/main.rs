@@ -4,9 +4,8 @@
 use esp_backtrace as _;
 use esp_hal::delay::Delay;
 use esp_hal::gpio::{Input, Pull};
-use esp_hal::{peripheral, prelude::*};
+use esp_hal::prelude::*;
 use esp_println::println;
-use log::info;
 
 #[entry]
 fn main() -> ! {
