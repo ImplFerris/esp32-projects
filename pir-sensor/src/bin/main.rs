@@ -24,9 +24,8 @@ fn main() -> ! {
     loop {
         if sensor_pin.is_high() {
             println!("Motion detected");
-        } else {
-            println!("Motion ended");
+            delay.delay(100.millis());
         }
-        delay.delay(500.millis());
+        delay.delay(100.millis());
     }
 }
