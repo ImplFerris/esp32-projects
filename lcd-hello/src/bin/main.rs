@@ -29,9 +29,6 @@ async fn main(_spawner: Spawner) {
 
     info!("Embassy initialized!");
 
-    // let sda = Output::new(peripherals.GPIO23, Level::Low, OutputConfig::default());
-    // let scl = Output::new(peripherals.GPIO18, Level::Low, OutputConfig::default());
-
     let i2c_bus = esp_hal::i2c::master::I2c::new(
         peripherals.I2C0,
         esp_hal::i2c::master::Config::default().with_frequency(Rate::from_khz(400)),
@@ -67,7 +64,6 @@ async fn main(_spawner: Spawner) {
         .unwrap();
 
     loop {
-        info!("Hello world!");
         Timer::after(Duration::from_secs(1)).await;
     }
 }
