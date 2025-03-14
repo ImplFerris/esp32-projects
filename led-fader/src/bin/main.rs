@@ -1,36 +1,36 @@
 #![no_std]
 #![no_main]
 
-use esp_backtrace as _;
-use esp_hal::{
-    ledc::{
-        channel::{self, ChannelIFace},
-        timer::{self, TimerIFace},
-        LSGlobalClkSource, Ledc, LowSpeed,
-    },
-    prelude::*,
-};
+use esp_hal::clock::CpuClock;
+use esp_hal::ledc::channel::ChannelIFace;
+use esp_hal::ledc::timer::TimerIFace;
+use esp_hal::ledc::{channel, timer, LSGlobalClkSource, Ledc, LowSpeed};
+use esp_hal::main;
+use esp_hal::time::Rate;
 
-#[entry]
+#[panic_handler]
+fn panic(_: &core::panic::PanicInfo) -> ! {
+    loop {}
+}
+
+#[main]
 fn main() -> ! {
-    let peripherals = esp_hal::init({
-        let mut config = esp_hal::Config::default();
-        config.cpu_clock = CpuClock::max();
-        config
-    });
+    // generator version: 0.3.1
+
+    let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
+    let peripherals = esp_hal::init(config);
 
     let led = peripherals.GPIO2;
     // let led = peripherals.GPIO5;
 
     let mut ledc = Ledc::new(peripherals.LEDC);
     ledc.set_global_slow_clock(LSGlobalClkSource::APBClk);
-
     let mut lstimer0 = ledc.timer::<LowSpeed>(timer::Number::Timer0);
     lstimer0
         .configure(timer::config::Config {
             duty: timer::config::Duty::Duty5Bit,
             clock_source: timer::LSClockSource::APBClk,
-            frequency: 24.kHz(),
+            frequency: Rate::from_khz(24),
         })
         .unwrap();
 
