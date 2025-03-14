@@ -31,7 +31,7 @@ async fn main(_spawner: Spawner) {
 
     info!("Embassy initialized!");
 
-    let i2c_drive = esp_hal::i2c::master::I2c::new(
+    let i2c_bus = esp_hal::i2c::master::I2c::new(
         peripherals.I2C0,
         esp_hal::i2c::master::Config::default().with_frequency(Rate::from_khz(400)),
     )
@@ -40,9 +40,9 @@ async fn main(_spawner: Spawner) {
     .with_sda(peripherals.GPIO23)
     .into_async();
 
-    let mut i2c_bus = I2C::new(i2c_drive, 0x27);
+    let mut i2c_interface = I2C::new(i2c_bus, 0x27);
 
-    let mut lcd = LiquidCrystal::new(&mut i2c_bus, Bus4Bits, LCD16X2);
+    let mut lcd = LiquidCrystal::new(&mut i2c_interface, Bus4Bits, LCD16X2);
     lcd.begin(&mut Delay);
 
     const FERRIS: [u8; 8] = [
