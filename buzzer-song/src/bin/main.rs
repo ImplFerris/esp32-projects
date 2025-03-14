@@ -5,24 +5,33 @@ use buzzer_song::{
     music::{self, Song},
     pink_panther,
 };
-use esp_backtrace as _;
+
 use esp_hal::{
-    delay::Delay,
+    clock::CpuClock,
     ledc::{
         channel::{self, ChannelIFace},
-        timer::{self, TimerIFace},
-        HighSpeed, Ledc,
+        timer::TimerIFace,
+        Ledc,
     },
-    prelude::*,
+    time::Rate,
+};
+use esp_hal::{ledc::timer, main};
+use esp_hal::{
+    ledc::HighSpeed,
+    time::{Duration, Instant},
 };
 
-#[entry]
+#[panic_handler]
+fn panic(_: &core::panic::PanicInfo) -> ! {
+    loop {}
+}
+
+#[main]
 fn main() -> ! {
-    let peripherals = esp_hal::init({
-        let mut config = esp_hal::Config::default();
-        config.cpu_clock = CpuClock::max();
-        config
-    });
+    // generator version: 0.3.1
+
+    let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
+    let peripherals = esp_hal::init(config);
 
     let mut buzzer = peripherals.GPIO33;
 
@@ -30,16 +39,14 @@ fn main() -> ! {
 
     let song = Song::new(pink_panther::TEMPO);
 
-    let delay = Delay::new();
-
     for (note, duration_type) in pink_panther::MELODY {
-        let note_duration = song.calc_note_duration(duration_type);
+        let note_duration = song.calc_note_duration(duration_type) as u64;
         let pause_duration = note_duration / 10; // 10% of note_duration
         if note == music::REST {
-            delay.delay_millis(note_duration);
+            blocking_delay(Duration::from_millis(note_duration));
             continue;
         }
-        let freq = (note as u32).Hz();
+        let freq = Rate::from_hz(note as u32);
 
         let mut hstimer0 = ledc.timer::<HighSpeed>(timer::Number::Timer0);
         hstimer0
@@ -59,12 +66,18 @@ fn main() -> ! {
             })
             .unwrap();
 
-        delay.delay_millis(note_duration - pause_duration); // play 90%
+        blocking_delay(Duration::from_millis(note_duration - pause_duration)); // play 90%
+
         channel0.set_duty(0).unwrap();
-        delay.delay_millis(pause_duration); // Pause for 10%
+        blocking_delay(Duration::from_millis(pause_duration)); // Pause for 10%
     }
 
     loop {
-        delay.delay_millis(5);
+        blocking_delay(Duration::from_millis(5));
     }
+}
+
+fn blocking_delay(duration: Duration) {
+    let delay_start = Instant::now();
+    while delay_start.elapsed() < duration {}
 }
