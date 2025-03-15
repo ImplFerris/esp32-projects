@@ -1,0 +1,61 @@
+[package]
+edition = "2021"
+name = "wifi-webfetch"
+version = "0.1.0"
+
+[[bin]]
+name = "wifi-website"
+path = "./src/bin/main.rs"
+
+[dependencies]
+critical-section = "1.2.0"
+defmt = "0.3.10"
+embedded-io = "0.6.1"
+esp-alloc = "0.7.0"
+esp-hal = { version = "1.0.0-beta.0", features = [
+  "defmt",
+  "esp32",
+  "unstable",
+] }
+esp-println = { version = "0.13.0", features = ["defmt-espflash", "esp32"] }
+esp-wifi = { version = "0.13.0", features = [
+  "builtin-scheduler",
+  "defmt",
+  "esp-alloc",
+  "esp32",
+  "smoltcp",
+  "wifi",
+] }
+heapless = { version = "0.8.0", default-features = false }
+smoltcp = { version = "0.12.0", default-features = false, features = [
+  "defmt",
+  "medium-ethernet",
+  "multicast",
+  "proto-dhcpv4",
+  "proto-dns",
+  "proto-ipv4",
+  "socket-dns",
+  "socket-icmp",
+  "socket-raw",
+  "socket-tcp",
+  "socket-udp",
+] }
+blocking-network-stack = { git = "https://github.com/bjoernQ/blocking-network-stack.git", rev = "b3ecefc222d8806edd221f266999ca339c52d34e", default-features = false, features = [
+  "dhcpv4",
+  "tcp",
+] }
+
+
+[profile.dev]
+# Rust debug is too slow.
+# For debug builds always builds with some optimization
+opt-level = "s"
+
+[profile.release]
+codegen-units = 1        # LLVM can perform better optimizations using a single thread
+debug = 2
+debug-assertions = false
+incremental = false
+lto = 'fat'
+opt-level = 's'
+overflow-checks = false
