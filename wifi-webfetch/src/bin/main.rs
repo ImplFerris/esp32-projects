@@ -13,7 +13,7 @@ use esp_hal::timer::timg::TimerGroup;
 use esp_hal::{main, time};
 use esp_println as _;
 use esp_println::println;
-use esp_wifi::wifi::WifiController;
+use esp_wifi::wifi::{self, WifiController};
 use smoltcp::iface::{SocketSet, SocketStorage};
 use smoltcp::wire::{DhcpOption, IpAddress};
 
@@ -65,7 +65,9 @@ fn main() -> ! {
     );
 
     configure_wifi(&mut controller);
-    connect_wifi(&mut controller, &mut stack);
+    scan_wifi(&mut controller);
+    connect_wifi(&mut controller);
+    obtain_ip(&mut stack);
 
     let mut rx_buffer = [0u8; 1536];
     let mut tx_buffer = [0u8; 1536];
@@ -103,19 +105,20 @@ fn init_hardware() -> Peripherals {
 }
 
 fn configure_wifi(controller: &mut WifiController<'_>) {
-    let client_config =
-        esp_wifi::wifi::Configuration::Client(esp_wifi::wifi::ClientConfiguration {
-            ssid: SSID.try_into().unwrap(),
-            password: PASSWORD.try_into().unwrap(),
-            ..Default::default()
-        });
+    let client_config = wifi::Configuration::Client(wifi::ClientConfiguration {
+        ssid: SSID.try_into().unwrap(),
+        password: PASSWORD.try_into().unwrap(),
+        ..Default::default()
+    });
 
     let res = controller.set_configuration(&client_config);
     info!("wifi_set_configuration returned {:?}", res);
 
     controller.start().unwrap();
     info!("is wifi started: {:?}", controller.is_started());
+}
 
+fn scan_wifi(controller: &mut WifiController<'_>) {
     info!("Start Wifi Scan");
     let res: Result<(heapless::Vec<_, 10>, usize), _> = controller.scan_n();
     if let Ok((res, _count)) = res {
@@ -125,10 +128,7 @@ fn configure_wifi(controller: &mut WifiController<'_>) {
     }
 }
 
-fn connect_wifi(
-    controller: &mut WifiController<'_>,
-    stack: &mut Stack<'_, esp_wifi::wifi::WifiDevice<'_>>,
-) {
+fn connect_wifi(controller: &mut WifiController<'_>) {
     println!("{:?}", controller.capabilities());
     info!("wifi_connect {:?}", controller.connect());
 
@@ -141,7 +141,9 @@ fn connect_wifi(
         }
     }
     info!("Connected: {:?}", controller.is_connected());
+}
 
+fn obtain_ip(stack: &mut Stack<'_, esp_wifi::wifi::WifiDevice<'_>>) {
     info!("Wait for IP address");
     loop {
         stack.work();
