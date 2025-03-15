@@ -1,25 +1,30 @@
 #![no_std]
 #![no_main]
 
-use esp_backtrace as _;
 use esp_hal::analog::adc::{Adc, AdcConfig, Attenuation};
+use esp_hal::clock::CpuClock;
 use esp_hal::delay::Delay;
-use esp_hal::gpio::{Level, Output};
-use esp_hal::prelude::*;
+use esp_hal::gpio::{Level, Output, OutputConfig};
+use esp_hal::main;
+use esp_println as _;
 
-#[entry]
+#[panic_handler]
+fn panic(_: &core::panic::PanicInfo) -> ! {
+    loop {}
+}
+
+#[main]
 fn main() -> ! {
-    let peripherals = esp_hal::init({
-        let mut config = esp_hal::Config::default();
-        config.cpu_clock = CpuClock::max();
-        config
-    });
+    // generator version: 0.3.1
 
-    let mut led = Output::new(peripherals.GPIO33, Level::Low);
+    let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
+    let peripherals = esp_hal::init(config);
+
+    let mut led = Output::new(peripherals.GPIO33, Level::Low, OutputConfig::default());
 
     let adc_pin = peripherals.GPIO4;
     let mut adc2_config = AdcConfig::new();
-    let mut pin = adc2_config.enable_pin(adc_pin, Attenuation::Attenuation11dB);
+    let mut pin = adc2_config.enable_pin(adc_pin, Attenuation::_11dB);
     let mut adc2 = Adc::new(peripherals.ADC2, adc2_config);
     let delay = Delay::new();
 
