@@ -2,23 +2,24 @@
 #![no_main]
 
 use chrono::{Datelike, NaiveDateTime, Timelike};
+use defmt::{info, println};
 use embassy_executor::Spawner;
-use embassy_time::{Duration, Timer};
+use embassy_time::{Delay, Duration, Timer};
 use embedded_hal_bus::spi::ExclusiveDevice;
 use embedded_sdmmc::{SdCard, TimeSource, Timestamp, VolumeIdx, VolumeManager};
-use esp_backtrace as _;
-use esp_hal::{
-    delay::Delay,
-    gpio::{Level, Output},
-    prelude::*,
-    rtc_cntl::Rtc,
-    spi::{
-        master::{Config, Spi},
-        SpiMode,
-    },
-};
-use esp_println::println;
-use log::info;
+use esp_hal::clock::CpuClock;
+use esp_hal::gpio::{Level, Output, OutputConfig};
+use esp_hal::rtc_cntl::Rtc;
+use esp_hal::spi;
+use esp_hal::spi::master::Spi;
+use esp_hal::time::Rate;
+use esp_hal::timer::timg::TimerGroup;
+use esp_println::{self as _};
+
+#[panic_handler]
+fn panic(_: &core::panic::PanicInfo) -> ! {
+    loop {}
+}
 
 struct SdTimeSource {
     timer: Rtc<'static>,
@@ -48,37 +49,34 @@ impl TimeSource for SdTimeSource {
     }
 }
 
-#[main]
+#[esp_hal_embassy::main]
 async fn main(_spawner: Spawner) {
-    let peripherals = esp_hal::init({
-        let mut config = esp_hal::Config::default();
-        config.cpu_clock = CpuClock::max();
-        config
-    });
+    // generator version: 0.3.1
 
-    esp_println::logger::init_logger_from_env();
+    let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
+    let peripherals = esp_hal::init(config);
 
-    let timer0 = esp_hal::timer::timg::TimerGroup::new(peripherals.TIMG1);
+    let timer0 = TimerGroup::new(peripherals.TIMG1);
     esp_hal_embassy::init(timer0.timer0);
 
     info!("Embassy initialized!");
 
-    let delay = Delay::new();
-
-    let spi = Spi::new_with_config(
+    // Configure SPI
+    let spi = Spi::new(
         peripherals.SPI2,
-        Config {
-            frequency: 400.kHz(),
-            mode: SpiMode::Mode0,
-            ..Config::default()
-        },
+        spi::master::Config::default()
+            .with_frequency(Rate::from_khz(400))
+            .with_mode(spi::Mode::_0),
     )
+    .unwrap()
     .with_sck(peripherals.GPIO18)
     .with_mosi(peripherals.GPIO23)
-    .with_miso(peripherals.GPIO19);
-    let sd_cs = Output::new(peripherals.GPIO5, Level::High);
-    let spi = ExclusiveDevice::new(spi, sd_cs, delay).unwrap();
+    .with_miso(peripherals.GPIO19)
+    .into_async();
+    let sd_cs = Output::new(peripherals.GPIO5, Level::High, OutputConfig::default());
+    let spi = ExclusiveDevice::new(spi, sd_cs, Delay).unwrap();
 
+    // Timer for sdcard
     let rtc = Rtc::new(peripherals.LPWR);
     const CURRENT_TIME: &str = env!("CURRENT_DATETIME");
     let current_time = NaiveDateTime::parse_from_str(CURRENT_TIME, "%Y-%m-%d %H:%M:%S").unwrap();
@@ -86,7 +84,7 @@ async fn main(_spawner: Spawner) {
 
     let sd_timer = SdTimeSource::new(rtc);
 
-    let sdcard = SdCard::new(spi, delay);
+    let sdcard = SdCard::new(spi, Delay);
     let mut volume_mgr = VolumeManager::new(sdcard, sd_timer);
 
     println!("Init SD card controller and retrieve card size...");
