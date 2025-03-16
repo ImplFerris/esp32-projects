@@ -1,23 +1,24 @@
 #![no_std]
 #![no_main]
 
-use esp_backtrace as _;
-use esp_hal::{
-    ledc::{
-        channel::{self, ChannelIFace},
-        timer::{self, TimerIFace},
-        HighSpeed, Ledc,
-    },
-    prelude::*,
-};
+use esp_hal::clock::CpuClock;
+use esp_hal::ledc::channel::ChannelIFace;
+use esp_hal::ledc::timer::TimerIFace;
+use esp_hal::ledc::{channel, timer, HighSpeed, Ledc};
+use esp_hal::main;
+use esp_hal::time::Rate;
 
-#[entry]
+#[panic_handler]
+fn panic(_: &core::panic::PanicInfo) -> ! {
+    loop {}
+}
+
+#[main]
 fn main() -> ! {
-    let peripherals = esp_hal::init({
-        let mut config = esp_hal::Config::default();
-        config.cpu_clock = CpuClock::max();
-        config
-    });
+    // generator version: 0.3.1
+
+    let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
+    let peripherals = esp_hal::init(config);
 
     // let led = peripherals.GPIO2;
     let led = peripherals.GPIO5;
@@ -29,7 +30,7 @@ fn main() -> ! {
         .configure(timer::config::Config {
             duty: timer::config::Duty::Duty5Bit,
             clock_source: timer::HSClockSource::APBClk,
-            frequency: 24.kHz(),
+            frequency: Rate::from_khz(24),
         })
         .unwrap();
 

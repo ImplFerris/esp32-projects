@@ -2,45 +2,48 @@
 #![no_main]
 
 use embedded_hal::pwm::SetDutyCycle;
-use esp_backtrace as _;
-use esp_hal::{
-    delay::Delay,
-    ledc::{
-        channel::{self, ChannelIFace},
-        timer::{self, TimerIFace},
-        HighSpeed, Ledc,
-    },
-    prelude::*,
-};
+use esp_hal::clock::CpuClock;
+use esp_hal::delay::Delay;
+use esp_hal::ledc::channel::ChannelIFace;
+use esp_hal::ledc::timer::TimerIFace;
+use esp_hal::ledc::{channel, timer, HighSpeed, Ledc};
+use esp_hal::main;
+use esp_hal::time::Rate;
+use esp_println as _;
 
-#[entry]
+#[panic_handler]
+fn panic(_: &core::panic::PanicInfo) -> ! {
+    loop {}
+}
+
+#[main]
 fn main() -> ! {
-    let peripherals = esp_hal::init({
-        let mut config = esp_hal::Config::default();
-        config.cpu_clock = CpuClock::max();
-        config
-    });
+    // generator version: 0.3.1
+
+    let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
+    let peripherals = esp_hal::init(config);
 
     let mut servo = peripherals.GPIO33;
-
     let ledc = Ledc::new(peripherals.LEDC);
 
     let mut hstimer0 = ledc.timer::<HighSpeed>(timer::Number::Timer0);
     hstimer0
         .configure(timer::config::Config {
-            duty: timer::config::Duty::Duty12Bit,
+            duty: timer::config::Duty::Duty5Bit,
             clock_source: timer::HSClockSource::APBClk,
-            frequency: 50.Hz(),
+            frequency: Rate::from_khz(24),
         })
         .unwrap();
+
     let mut channel0 = ledc.channel(channel::Number::Channel0, &mut servo);
     channel0
         .configure(channel::config::Config {
             timer: &hstimer0,
-            duty_pct: 12,
+            duty_pct: 10,
             pin_config: channel::config::PinConfig::PushPull,
         })
         .unwrap();
+
     let delay = Delay::new();
 
     let max_duty_cycle = channel0.max_duty_cycle() as u32;

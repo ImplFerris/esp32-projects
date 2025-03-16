@@ -1,30 +1,40 @@
 #![no_std]
 #![no_main]
 
-use esp_backtrace as _;
-use esp_hal::delay::Delay;
-use esp_hal::gpio::{Input, Pull};
-use esp_hal::prelude::*;
-use esp_println::println;
+use defmt::info;
+use esp_hal::clock::CpuClock;
+use esp_hal::gpio::{Input, InputConfig, Pull};
+use esp_hal::main;
+use esp_hal::time::{Duration, Instant};
+use esp_println as _;
 
-#[entry]
+#[panic_handler]
+fn panic(_: &core::panic::PanicInfo) -> ! {
+    loop {}
+}
+
+#[main]
 fn main() -> ! {
-    let peripherals = esp_hal::init({
-        let mut config = esp_hal::Config::default();
-        config.cpu_clock = CpuClock::max();
-        config
-    });
+    // generator version: 0.3.1
 
-    esp_println::logger::init_logger_from_env();
+    let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
+    let peripherals = esp_hal::init(config);
 
-    let sensor_pin = Input::new(peripherals.GPIO33, Pull::Down);
+    let sensor_pin = Input::new(
+        peripherals.GPIO33,
+        InputConfig::default().with_pull(Pull::Down),
+    );
 
-    let delay = Delay::new();
     loop {
         if sensor_pin.is_high() {
-            println!("Motion detected");
-            delay.delay(100.millis());
+            info!("Motion detected");
+            blocking_delay(Duration::from_millis(100));
         }
-        delay.delay(100.millis());
+        blocking_delay(Duration::from_millis(100));
     }
+}
+
+fn blocking_delay(duration: Duration) {
+    let delay_start = Instant::now();
+    while delay_start.elapsed() < duration {}
 }

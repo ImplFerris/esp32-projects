@@ -1,7 +1,6 @@
 use embassy_net::Stack;
 use embassy_time::Duration;
 use esp_alloc as _;
-use esp_backtrace as _;
 use picoserve::{response::File, routing, AppBuilder, AppRouter, Router};
 
 pub struct Application;

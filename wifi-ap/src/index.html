@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Impl Rust on ESP32 - Access Point</title>
+    <title>Impl Rust for ESP32</title>
     <style>
         :root {
             --primary-color: #ff7b3b;
@@ -29,34 +29,30 @@
         }
 
         header {
-
-            padding: 40px 20px;
+            padding: 2rem 1rem;
             text-align: center;
             color: #fff;
             box-shadow: 0 6px 12px var(--shadow-color);
-
-    margin: 0 auto;
-    max-width: 1200px; 
+            margin: 0 auto;
+            max-width: 1200px;
         }
 
         nav {
             display: flex;
             justify-content: center;
-            gap: 30px;
+            gap: 1.5rem;
             background: linear-gradient(105deg, #2b2b2b 0%, #121212 100%);
-            padding: 12px 0;
+            padding: 0.75rem 0;
             position: sticky;
             top: 0;
             z-index: 1000;
             box-shadow: 0 4px 8px var(--shadow-color);
-
-
         }
 
         nav a {
             color: #f0f0f0;
             text-decoration: none;
-            font-size: 1.2em;
+            font-size: 1.1rem;
             font-weight: bold;
             letter-spacing: 0.5px;
             transition: color 0.3s ease, transform 0.3s ease;
@@ -69,26 +65,23 @@
 
         main {
             flex: 1;
-            padding: 20px;
+            padding: 1rem;
             max-width: 1200px;
             margin: 0 auto;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            grid-auto-rows: 350px;
-            gap: 40px;
+            gap: 2rem;
             align-items: start;
             justify-content: center;
         }
 
         section {
             background: var(--card-background);
-            border-radius: 16px;
-            padding: 20px;
-
+            border-radius: 1rem;
+            padding: 1.25rem;
             box-shadow: 0 8px 16px var(--shadow-color);
-            height: 90%; 
             transition: box-shadow 0.3s ease;
-            max-width:70%;
+            max-width: 100%;
             margin: 0 auto;
         }
 
@@ -99,19 +92,19 @@
         section h2 {
             margin-top: 0;
             color: var(--accent-color);
-            font-size: 1.8em;
+            font-size: 1.5rem;
         }
 
         ul {
             list-style: none;
             padding: 0;
-            margin: 20px 0;
+            margin: 1.25rem 0;
         }
 
         ul li {
             text-align: left;
-            padding-left: 20px;
-            margin-bottom: 10px;
+            padding-left: 1.25rem;
+            margin-bottom: 0.625rem;
             position: relative;
         }
 
@@ -127,57 +120,91 @@
             background: var(--header-background);
             color: #fff;
             text-align: center;
-            padding: 20px;
+            padding: 1.25rem;
             margin-top: auto;
             box-shadow: 0 -6px 12px var(--shadow-color);
         }
 
         footer p {
             margin: 0;
-            font-size: 0.9em;
+            font-size: 0.9rem;
         }
 
         .rust-logo {
-            width: 80px;
-            margin: 15px auto;
+            width: 5rem;
+            margin: 1rem auto;
         }
 
         img.embedded-diagram {
-            border-radius: 12px;
-            border: 4px solid var(--accent-color);
+            border-radius: 0.75rem;
+            border: 0.25rem solid var(--accent-color);
             max-width: 100%;
         }
 
-        @media (min-width: 1024px) {
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            nav {
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 0.5rem;
+            }
+
+            nav a {
+                font-size: 1rem;
+            }
+
             main {
-                grid-template-columns: repeat(1, 1fr);
+                grid-template-columns: 1fr;
+            }
+
+            section {
+                padding: 1rem;
+            }
+
+            section h2 {
+                font-size: 1.25rem;
+            }
+
+            ul li {
+                font-size: 0.9rem;
             }
         }
 
-        header h1 {
-            margin: 0;
-            font-size: 3em;
-            letter-spacing: 1.5px;
-            font-weight: 700;
-            background: -webkit-linear-gradient(75.52deg, rgb(255, 37, 24) -7.27%, rgba(235, 215, 111, 0.8) 95.87%);
-            -webkit-background-clip: text;
-            color: transparent;
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            nav a {
+                font-size: 0.9rem;
+            }
+
+            section h2 {
+                font-size: 1rem;
+            }
+
+            ul li {
+                font-size: 0.8rem;
+            }
         }
     </style>
 </head>
 <body>
     <header style="display: flex; align-items: center; gap: 10px;">
-<svg height="144" width="144" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="grad1" x1="0%" y1="0%" x2="120%" y2="120%">
-      <stop offset="0%" style="stop-color:#b7410e;stop-opacity:1" />
-      <stop offset="80%" style="stop-color:#ffff00;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  <path d="m71.05 23.68c-26.06 0-47.27 21.22-47.27 47.27s21.22 47.27 47.27 47.27 47.27-21.22 47.27-47.27-21.22-47.27-47.27-47.27zm-.07 4.2a3.1 3.11 0 0 1 3.02 3.11 3.11 3.11 0 0 1 -6.22 0 3.11 3.11 0 0 1 3.2-3.11zm7.12 5.12a38.27 38.27 0 0 1 26.2 18.66l-3.67 8.28c-.63 1.43.02 3.11 1.44 3.75l7.06 3.13a38.27 38.27 0 0 1 .08 6.64h-3.93c-.39 0-.55.26-.55.64v1.8c0 4.24-2.39 5.17-4.49 5.4-2 .23-4.21-.84-4.49-2.06-1.18-6.63-3.14-8.04-6.24-10.49 3.85-2.44 7.85-6.05 7.85-10.87 0-5.21-3.57-8.49-6-10.1-3.42-2.25-7.2-2.7-8.22-2.7h-40.6a38.27 38.27 0 0 1 21.41-12.08l4.79 5.02c1.08 1.13 2.87 1.18 4 .09zm-44.2 23.02a3.11 3.11 0 0 1 3.02 3.11 3.11 3.11 0 0 1 -6.22 0 3.11 3.11 0 0 1 3.2-3.11zm74.15.14a3.11 3.11 0 0 1 3.02 3.11 3.11 3.11 0 0 1 -6.22 0 3.11 3.11 0 0 1 3.2-3.11zm-68.29.5h5.42v24.44h-10.94a38.27 38.27 0 0 1 -1.24-14.61l6.7-2.98c1.43-.64 2.08-2.31 1.44-3.74zm22.62.26h12.91c.67 0 4.71.77 4.71 3.8 0 2.51-3.1 3.41-5.65 3.41h-11.98zm0 17.56h9.89c.9 0 4.83.26 6.08 5.28.39 1.54 1.26 6.56 1.85 8.17.59 1.8 2.98 5.4 5.53 5.4h16.14a38.27 38.27 0 0 1 -3.54 4.1l-6.57-1.41c-1.53-.33-3.04.65-3.37 2.18l-1.56 7.28a38.27 38.27 0 0 1 -31.91-.15l-1.56-7.28c-.33-1.53-1.83-2.51-3.36-2.18l-6.43 1.38a38.27 38.27 0 0 1 -3.32-3.92h31.27c.35 0 .59-.06.59-.39v-11.06c0-.32-.24-.39-.59-.39h-9.15zm-14.43 25.33a3.11 3.11 0 0 1 3.02 3.11 3.11 3.11 0 0 1 -6.22 0 3.11 3.11 0 0 1 3.2-3.11zm46.05.14a3.11 3.11 0 0 1 3.02 3.11 3.11 3.11 0 0 1 -6.22 0 3.11 3.11 0 0 1 3.2-3.11z" fill="url(#grad1)"/>
-  <path d="m115.68 70.95a44.63 44.63 0 0 1 -44.63 44.63 44.63 44.63 0 0 1 -44.63-44.63 44.63 44.63 0 0 1 44.63-44.63 44.63 44.63 0 0 1 44.63 44.63zm-.84-4.31 6.96 4.31-6.96 4.31 5.98 5.59-7.66 2.87 4.78 6.65-8.09 1.32 3.4 7.46-8.19-.29 1.88 7.98-7.98-1.88.29 8.19-7.46-3.4-1.32 8.09-6.65-4.78-2.87 7.66-5.59-5.98-4.31 6.96-4.31-6.96-5.59 5.98-2.87-7.66-6.65 4.78-1.32-8.09-7.46 3.4.29-8.19-7.98 1.88 1.88-7.98-8.19.29 3.4-7.46-8.09-1.32 4.78-6.65-7.66-2.87 5.98-5.59-6.96-4.31 6.96-4.31-5.98-5.59 7.66-2.87-4.78-6.65 8.09-1.32-3.4-7.46 8.19.29-1.88-7.98 7.98 1.88-.29-8.19 7.46 3.4 1.32-8.09 6.65 4.78 2.87-7.66 5.59 5.98 4.31-6.96 4.31 6.96 5.59-5.98 2.87 7.66 6.65-4.78 1.32 8.09 7.46-3.4-.29 8.19 7.98-1.88-1.88 7.98 8.19-.29-3.4 7.46 8.09 1.32-4.78 6.65 7.66 2.87z" fill="url(#grad1)" fill-rule="evenodd" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
-</svg>
-        <h1>Impl Rust on ESP32</h1>
+        <svg height="144" width="144" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="grad1" x1="0%" y1="0%" x2="120%" y2="120%">
+                    <stop offset="0%" style="stop-color:#b7410e;stop-opacity:1" />
+                    <stop offset="80%" style="stop-color:#ffff00;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <path d="m71.05 23.68c-26.06 0-47.27 21.22-47.27 47.27s21.22 47.27 47.27 47.27 47.27-21.22 47.27-47.27-21.22-47.27-47.27-47.27zm-.07 4.2a3.1 3.11 0 0 1 3.02 3.11 3.11 3.11 0 0 1 -6.22 0 3.11 3.11 0 0 1 3.2-3.11zm7.12 5.12a38.27 38.27 0 0 1 26.2 18.66l-3.67 8.28c-.63 1.43.02 3.11 1.44 3.75l7.06 3.13a38.27 38.27 0 0 1 .08 6.64h-3.93c-.39 0-.55.26-.55.64v1.8c0 4.24-2.39 5.17-4.49 5.4-2 .23-4.21-.84-4.49-2.06-1.18-6.63-3.14-8.04-6.24-10.49 3.85-2.44 7.85-6.05 7.85-10.87 0-5.21-3.57-8.49-6-10.1-3.42-2.25-7.2-2.7-8.22-2.7h-40.6a38.27 38.27 0 0 1 21.41-12.08l4.79 5.02c1.08 1.13 2.87 1.18 4 .09zm-44.2 23.02a3.11 3.11 0 0 1 3.02 3.11 3.11 3.11 0 0 1 -6.22 0 3.11 3.11 0 0 1 3.2-3.11zm74.15.14a3.11 3.11 0 0 1 3.02 3.11 3.11 3.11 0 0 1 -6.22 0 3.11 3.11 0 0 1 3.2-3.11zm-68.29.5h5.42v24.44h-10.94a38.27 38.27 0 0 1 -1.24-14.61l6.7-2.98c1.43-.64 2.08-2.31 1.44-3.74zm22.62.26h12.91c.67 0 4.71.77 4.71 3.8 0 2.51-3.1 3.41-5.65 3.41h-11.98zm0 17.56h9.89c.9 0 4.83.26 6.08 5.28.39 1.54 1.26 6.56 1.85 8.17.59 1.8 2.98 5.40 5.53 5.40h16.14a38.27 38.27 0 0 1 -3.54 4.10l-6.57-1.41c-1.53-.33-3.04.65-3.37 2.18l-1.56 7.28a38.27 38.27 0 0 1 -31.91-.15l-1.56-7.28c-.33-1.53-1.83-2.51-3.36-2.18l-6.43 1.38a38.27 38.27 0 0 1 -3.32-3.92h31.27c.35 0 .59-.06.59-.39v-11.06c0-.32-.24-.39-.59-.39h-9.15zm-14.43 25.33a3.11 3.11 0 0 1 3.02 3.11 3.11 3.11 0 0 1 -6.22 0 3.11 3.11 0 0 1 3.2-3.11zm46.05.14a3.11 3.11 0 0 1 3.02 3.11 3.11 3.11 0 0 1 -6.22 0 3.11 3.11 0 0 1 3.2-3.11z" fill="url(#grad1)"/>
+            <path d="m115.68 70.95a44.63 44.63 0 0 1 -44.63 44.63 44.63 44.63 0 0 1 -44.63-44.63 44.63 44.63 0 0 1 44.63-44.63 44.63 44.63 0 0 1 44.63 44.63zm-.84-4.31 6.96 4.31-6.96 4.31 5.98 5.59-7.66 2.87 4.78 6.65-8.09 1.32 3.40 7.46-8.19-.29 1.88 7.98-7.98-1.88.29 8.19-7.46-3.40-1.32 8.09-6.65-4.78-2.87 7.66-5.59-5.98-4.31 6.96-4.31-6.96-5.59 5.98-2.87-7.66-6.65 4.78-1.32-8.09-7.46 3.40.29-8.19-7.98 1.88 1.88-7.98-8.19.29 3.40-7.46-8.09-1.32 4.78-6.65-7.66-2.87 5.98-5.59-6.96-4.31 6.96-4.31-5.98-5.59 7.66-2.87-4.78-6.65 8.09-1.32-3.40-7.46 8.19.29-1.88-7.98 7.98 1.88-.29-8.19 7.46 3.40 1.32-8.09 6.65 4.78 2.87-7.66 5.59 5.98 4.31-6.96 4.31 6.96 5.59-5.98 2.87 7.66 6.65-4.78 1.32 8.09 7.46-3.40-.29 8.19 7.98-1.88-1.88 7.98 8.19-.29-3.40 7.46 8.09 1.32-4.78 6.65 7.66 2.87z" fill="url(#grad1)" fill-rule="evenodd" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+        </svg>
+        <h1>Impl Rust for ESP32</h1>
     </header>
     <nav>
         <a href="#rust">Rust</a>
@@ -186,8 +213,7 @@
         <a href="#embassy-framework">Rust Embassy</a>
     </nav>
     <main>
-
-       <section id="rust">
+        <section id="rust">
             <h2>Why Rust for Embedded Systems?</h2>
             <ul>
                 <li><strong>Powerful static analysis:</strong> Enforce pin and peripheral configuration at compile time. Guarantee that resources won’t be used by unintended parts of your application.</li>
@@ -195,13 +221,12 @@
                 <li><strong>Fearless concurrency:</strong> Rust prevents accidental state sharing between threads, ensuring data race-free concurrency.</li>
                 <li><strong>Interoperability:</strong> Integrate Rust into your existing C codebase or leverage an existing SDK to write a Rust application.</li>
                 <li><strong>Portability:</strong> Write a library or driver once, and use it with a variety of systems, ranging from very small microcontrollers to powerful SBCs.</li>
-
             </ul>
         </section>
 
         <section id="esp32">
             <h2>ESP32 Features</h2>
-            <p>The ESP32 is a powerful and versatile microcontroller with built-in Wi-Fi and Bluetooth, ideal for IoT and embedded applications.</p> 
+            <p>The ESP32 is a powerful and versatile microcontroller with built-in Wi-Fi and Bluetooth, ideal for IoT and embedded applications.</p>
             <br/>
             <p>Key features include:</p>
             <ul>
@@ -239,8 +264,7 @@
         </section>
     </main>
     <footer>
-        <p>&copy; 2025 Impl Rust on ESP32</p>
+        <p>&copy; 2025 Impl Rust for ESP32</p>
     </footer>
 </body>
 </html>
-
