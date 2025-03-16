@@ -1,28 +1,18 @@
 #![no_std]
 #![no_main]
 
-use core::fmt::Write;
-
+use defmt::info;
 use embassy_executor::Spawner;
-use embedded_graphics::prelude::*;
-use embedded_graphics::{
-    mono_font::{ascii::FONT_6X10, MonoTextStyleBuilder},
-    pixelcolor::BinaryColor,
-    prelude::Point,
-    text::{Baseline, Text},
-};
-use esp_backtrace as _;
-use esp_hal::{
-    analog::adc::{Adc, AdcConfig, Attenuation},
-    delay::Delay,
-    prelude::*,
-};
-use heapless::String;
-use log::info;
-use ssd1306::{
-    mode::DisplayConfigAsync, prelude::DisplayRotation, size::DisplaySize128x64,
-    I2CDisplayInterface, Ssd1306Async,
-};
+use embassy_time::{Duration, Timer};
+use esp_hal::analog::adc::{Adc, AdcConfig, Attenuation};
+use esp_hal::clock::CpuClock;
+use esp_hal::timer::timg::TimerGroup;
+use esp_println as _;
+
+#[panic_handler]
+fn panic(_: &core::panic::PanicInfo) -> ! {
+    loop {}
+}
 
 const fn kelvin_to_celsius(kelvin: f64) -> f64 {
     kelvin - 273.15
@@ -58,75 +48,37 @@ fn calculate_temperature(current_res: f64, b_val: f64) -> f64 {
     1.0 / inv_t
 }
 
-#[main]
+#[esp_hal_embassy::main]
 async fn main(_spawner: Spawner) {
-    let peripherals = esp_hal::init({
-        let mut config = esp_hal::Config::default();
-        config.cpu_clock = CpuClock::max();
-        config
-    });
+    // generator version: 0.3.1
 
-    esp_println::logger::init_logger_from_env();
+    let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
+    let peripherals = esp_hal::init(config);
 
-    let timer0 = esp_hal::timer::timg::TimerGroup::new(peripherals.TIMG1);
+    let timer0 = TimerGroup::new(peripherals.TIMG1);
     esp_hal_embassy::init(timer0.timer0);
 
     info!("Embassy initialized!");
 
-    // ADC Setup for thermistor
     let adc_pin = peripherals.GPIO13;
     let mut adc2_config = AdcConfig::new();
-    let mut pin = adc2_config.enable_pin(adc_pin, Attenuation::Attenuation11dB);
+    let mut pin = adc2_config.enable_pin(adc_pin, Attenuation::_11dB);
     let mut adc2 = Adc::new(peripherals.ADC2, adc2_config);
-    let delay = Delay::new();
-
-    // OLED Setup:
-    let i2c0 = esp_hal::i2c::master::I2c::new(
-        peripherals.I2C0,
-        esp_hal::i2c::master::Config {
-            frequency: 400.kHz(),
-            timeout: Some(100),
-        },
-    )
-    .with_scl(peripherals.GPIO18)
-    .with_sda(peripherals.GPIO23)
-    .into_async();
-
-    let interface = I2CDisplayInterface::new(i2c0);
-    let mut display = Ssd1306Async::new(interface, DisplaySize128x64, DisplayRotation::Rotate0)
-        .into_buffered_graphics_mode();
-    display.init().await.unwrap();
-
-    let text_style = MonoTextStyleBuilder::new()
-        .font(&FONT_6X10)
-        .text_color(BinaryColor::On)
-        .build();
-
-    // Heapless for string formatting
-    let mut buffer: String<64> = String::new();
 
     loop {
-        buffer.clear();
-        display.clear_buffer();
-
         let adc_value: u16 = nb::block!(adc2.read_oneshot(&mut pin)).unwrap();
-        // esp_println::println!("ADC: {}", adc_value);
+        esp_println::println!("ADC: {}", adc_value);
         let adc_value: f64 = ADC_LUT[adc_value as usize];
-        // esp_println::println!("Corrected ADC: {}", adc_value);
+        esp_println::println!("Corrected ADC: {}", adc_value);
 
         let current_res = adc_to_resistance(adc_value);
-        // esp_println::println!("R2: {}", current_res);
+        esp_println::println!("R2: {}", current_res);
 
         let temperature_kelvin = calculate_temperature(current_res, B_VALUE);
         let temperature_celsius = kelvin_to_celsius(temperature_kelvin);
+        esp_println::println!("Temperature:{:.2} °C", temperature_celsius);
 
-        write!(buffer, "Temperature: {:.2} C", temperature_celsius).unwrap();
-        Text::with_baseline(&buffer, Point::new(0, 16), text_style, Baseline::Top)
-            .draw(&mut display)
-            .unwrap();
-
-        display.flush().await.unwrap();
-        delay.delay_millis(1000);
+        Timer::after(Duration::from_secs(1)).await;
     }
 }
 
