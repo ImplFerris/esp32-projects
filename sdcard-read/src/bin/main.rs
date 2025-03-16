@@ -51,7 +51,7 @@ async fn main(_spawner: Spawner) {
 
     info!("Embassy initialized!");
 
-    let spi = Spi::new(
+    let spi_bus = Spi::new(
         peripherals.SPI2,
         spi::master::Config::default()
             .with_frequency(Rate::from_khz(400))
@@ -63,9 +63,9 @@ async fn main(_spawner: Spawner) {
     .with_miso(peripherals.GPIO19)
     .into_async();
     let sd_cs = Output::new(peripherals.GPIO5, Level::High, OutputConfig::default());
-    let spi = ExclusiveDevice::new(spi, sd_cs, Delay).unwrap();
+    let spi_dev = ExclusiveDevice::new(spi_bus, sd_cs, Delay).unwrap();
 
-    let sdcard = SdCard::new(spi, Delay);
+    let sdcard = SdCard::new(spi_dev, Delay);
     let mut volume_mgr = VolumeManager::new(sdcard, DummyTimesource::default());
 
     println!("Init SD card controller and retrieve card size...");

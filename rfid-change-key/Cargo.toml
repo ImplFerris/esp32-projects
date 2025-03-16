@@ -1,27 +1,30 @@
 [package]
-name = "rfid-write"
-version = "0.1.0"
 edition = "2021"
+name    = "rfid-read"
+version = "0.1.0"
+
+[[bin]]
+name = "rfid-read"
+path = "./src/bin/main.rs"
 
 [dependencies]
-esp-backtrace = { version = "0.14.2", features = [
-    "esp32",
-    "exception-handler",
-    "panic-handler",
-    "println",
-] }
-
-esp-hal = { version = "0.22.0", features = ["esp32"] }
-esp-println = { version = "0.12.0", features = ["esp32", "log"] }
-log = { version = "0.4.21" }
-embassy-executor = { version = "0.6.0", features = ["task-arena-size-12288"] }
-embassy-time = { version = "0.3.1", features = ["generic-queue-8"] }
-esp-hal-embassy = { version = "0.5.0", features = ["esp32"] }
-static_cell = { version = "2.1.0", features = ["nightly"] }
 critical-section = "1.2.0"
+defmt = "0.3.10"
+embassy-executor = { version = "0.7.0", features = [
+  "defmt",
+  "task-arena-size-20480",
+] }
+embassy-time = "0.4.0"
+esp-hal = { version = "1.0.0-beta.0", features = [
+  "defmt",
+  "esp32",
+  "unstable",
+] }
+esp-hal-embassy = { version = "0.7.0", features = ["esp32"] }
+esp-println = { version = "0.13.0", features = ["defmt-espflash", "esp32"] }
+static_cell = { version = "2.1.0", features = ["nightly"] }
 mfrc522 = "0.8.0"
-embedded-hal-bus = "0.2.0"
-
+embedded-hal-bus = "0.3.0"
 
 [profile.dev]
 # Rust debug is too slow.
@@ -29,10 +32,10 @@ embedded-hal-bus = "0.2.0"
 opt-level = "s"
 
 [profile.release]
-codegen-units = 1        # LLVM can perform better optimizations using a single thread
-debug = 2
+codegen-units    = 1     # LLVM can perform better optimizations using a single thread
+debug            = 2
 debug-assertions = false
-incremental = false
-lto = 'fat'
-opt-level = 's'
-overflow-checks = false
+incremental      = false
+lto              = 'fat'
+opt-level        = 's'
+overflow-checks  = false
