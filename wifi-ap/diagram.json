@@ -1,10 +1,9 @@
 {
     "version": 1,
     "editor": "wokwi",
-    "author": "{{authors}}",
     "parts": [
         {
-            "type": "{{ wokwi_board }}",
+            "type": "board-esp32-devkit-c-v4",
             "id": "esp",
             "top": 0.59,
             "left": 0.67,
