@@ -40,6 +40,7 @@ async fn main(_spawner: Spawner) {
 
     info!("Embassy initialized!");
 
+    // Initialize SPI
     let spi = Spi::new(
         peripherals.SPI2,
         SpiConfig::default()
@@ -51,32 +52,27 @@ async fn main(_spawner: Spawner) {
     .with_sck(peripherals.GPIO18)
     //DIN
     .with_mosi(peripherals.GPIO23);
+    let cs = Output::new(peripherals.GPIO33, Level::Low, OutputConfig::default());
+    let mut spi_dev = ExclusiveDevice::new(spi, cs, Delay);
 
+    // Initialize Display
     let busy_in = Input::new(
         peripherals.GPIO22,
         InputConfig::default().with_pull(Pull::None),
     );
-
-    let cs = Output::new(peripherals.GPIO33, Level::Low, OutputConfig::default());
-    let mut spi_dev = ExclusiveDevice::new(spi, cs, Delay);
     let dc = Output::new(peripherals.GPIO17, Level::Low, OutputConfig::default());
     let reset = Output::new(peripherals.GPIO16, Level::Low, OutputConfig::default());
-
     let mut display = Display1in54::default();
     let mut epd = Epd1in54::new(&mut spi_dev, busy_in, dc, reset, &mut Delay, None).unwrap();
 
+    // Clear any existing image
     epd.clear_frame(&mut spi_dev, &mut Delay).unwrap();
-    epd.display_frame(&mut spi_dev, &mut Delay).unwrap();
-    Timer::after(Duration::from_secs(2)).await;
-
     display.clear(Color::White).unwrap();
     epd.update_and_display_frame(&mut spi_dev, display.buffer(), &mut Delay)
         .unwrap();
-
-    Timer::after(Duration::from_secs(2)).await;
+    Timer::after(Duration::from_secs(5)).await;
 
     draw_text(&mut display, "impl Rust for ESP32", 3, 100);
-
     epd.update_and_display_frame(&mut spi_dev, display.buffer(), &mut Delay)
         .unwrap();
     Timer::after(Duration::from_secs(5)).await;
