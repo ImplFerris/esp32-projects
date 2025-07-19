@@ -1,25 +1,35 @@
 #![no_std]
 #![no_main]
 
+// Usual imports
 use defmt::info;
+use esp_hal::clock::CpuClock;
+use esp_hal::main;
+use esp_hal::time::{Duration, Instant};
+use esp_println as _;
+
+// Embedded Grpahics related
 use embedded_graphics::mono_font::MonoTextStyle;
 use embedded_graphics::pixelcolor::Rgb565;
 use embedded_graphics::prelude::*;
 use embedded_graphics::text::{Baseline, Text};
-use embedded_hal_bus::spi::ExclusiveDevice;
-use esp_hal::clock::CpuClock;
-use esp_hal::gpio::{Level, Output, OutputConfig};
-use esp_hal::main;
-use esp_hal::spi::master::Spi;
-use esp_hal::time::{Duration, Instant, Rate};
-use esp_println as _;
 
+// Larger font
+use profont::{PROFONT_18_POINT, PROFONT_24_POINT};
+
+// ESP32 SPI + Display Driver bridge
 use display_interface_spi::SPIInterface;
+use embedded_hal_bus::spi::ExclusiveDevice;
 use esp_hal::delay::Delay;
 use esp_hal::spi::master::Config as SpiConfig;
+use esp_hal::spi::master::Spi;
 use esp_hal::spi::Mode as SpiMode;
+use esp_hal::time::Rate; // For specifying SPI frequency
 use ili9341::{DisplaySize240x320, Ili9341, Orientation};
-use profont::{PROFONT_18_POINT, PROFONT_24_POINT};
+
+// For managing GPIO state
+use esp_hal::gpio::{Level, Output, OutputConfig};
+
 #[panic_handler]
 fn panic(_: &core::panic::PanicInfo) -> ! {
     loop {}
@@ -57,6 +67,7 @@ fn main() -> ! {
         DisplaySize240x320,
     )
     .unwrap();
+
     display.clear(Rgb565::WHITE).unwrap();
 
     let text_style = MonoTextStyle::new(&PROFONT_24_POINT, Rgb565::RED);
