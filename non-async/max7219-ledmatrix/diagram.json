@@ -1,33 +1,33 @@
 {
-    "version": 1,
-    "editor": "wokwi",
-    "parts": [
-        {
-            "type": "board-esp32-devkit-c-v4",
-            "id": "esp",
-            "top": 0.59,
-            "left": 0.67,
-            "attrs": {
-                "flashSize": "16"
-            }
-        }
-    ],
-    "connections": [
-        [
-            "esp:TX",
-            "$serialMonitor:RX",
-            "",
-            []
-        ],
-        [
-            "esp:RX",
-            "$serialMonitor:TX",
-            "",
-            []
-        ]
-    ],
-    "serialMonitor": {
-        "display": "terminal",
-        "convertEol": true
+  "version": 1,
+  "editor": "wokwi",
+  "author": "impl Ferris (https://github.com/implferris)",
+  "parts": [
+    {
+      "type": "wokwi-esp32-devkit-v1",
+      "id": "esp",
+      "top": -128.8,
+      "left": 53.1,
+      "attrs": { "builder": "rust-nostd-esp" }
+    },
+    {
+      "type": "wokwi-max7219-matrix",
+      "id": "matrix1",
+      "top": -252.3,
+      "left": -183.3,
+      "attrs": { "chain": "1", "layout": "fc16" }
     }
+  ],
+  "connections": [
+    ["esp:3V3", "matrix1:V+", "red", ["v1.97", "h269.06", "v-245.91"]],
+    ["esp:GND.1", "matrix1:GND", "black", ["h258.56", "v-224.84"]],
+    ["esp:D23", "matrix1:DIN", "blue", ["h245.06", "v-90.24"]],
+    ["esp:D21", "matrix1:CS", "green", ["h233.81", "v-196.14"]],
+    ["esp:D18", "matrix1:CLK", "white", ["h223.31", "v-128.74"]]
+  ],
+  "serialMonitor": {
+    "display": "terminal",
+    "newline": "lf",
+    "convertEol": true
+  }
 }
