@@ -1,0 +1,41 @@
+[package]
+edition = "2021"
+name = "max7219-ledmatrix"
+version = "0.1.0"
+
+[[bin]]
+name = "max7219-ledmatrix"
+path = "./src/bin/main.rs"
+
+[dependencies]
+defmt = "1.0.1"
+esp-bootloader-esp-idf = "0.1.0"
+esp-hal = { version = "=1.0.0-beta.1", features = [
+  "defmt",
+  "esp32",
+  "unstable",
+] }
+
+critical-section = "1.2.0"
+esp-println = { version = "0.14.0", features = ["defmt-espflash", "esp32"] }
+
+embedded-hal-bus = "0.3.0"
+# Full Crate
+# max7219-display = { git = "https://github.com/ImplFerris/max7219-display", features = [] }
+# Bare driver for the Red book:
+max7219-driver-project = { git = "https://github.com/ImplFerris/max7219-driver-project" }
+
+
+[profile.dev]
+# Rust debug is too slow.
+# For debug builds always builds with some optimization
+opt-level = "s"
+
+[profile.release]
+codegen-units = 1        # LLVM can perform better optimizations using a single thread
+debug = 2
+debug-assertions = false
+incremental = false
+lto = 'fat'
+opt-level = 's'
+overflow-checks = false
