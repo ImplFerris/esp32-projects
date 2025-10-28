@@ -6,13 +6,11 @@
     holding buffers for the duration of a data transfer."
 )]
 
-use defmt::info;
 use esp_hal::clock::CpuClock;
 use esp_hal::main;
-use esp_hal::time::{Duration, Instant};
 use esp_println as _;
 
-// Embedded Grpahics related
+// Embedded Graphics related
 use embedded_graphics::pixelcolor::Rgb565;
 use embedded_graphics::prelude::*;
 
