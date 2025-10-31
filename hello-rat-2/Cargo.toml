@@ -1,0 +1,51 @@
+[package]
+edition      = "2024"
+name         = "hello-rat"
+rust-version = "1.88"
+version      = "0.1.0"
+
+[[bin]]
+name = "hello-rat"
+path = "./src/bin/main.rs"
+
+[dependencies]
+esp-hal = { version = "=1.0.0-rc.1", features = [
+  "esp32",
+  "log-04",
+  "unstable",
+] }
+
+
+esp-bootloader-esp-idf = { version = "0.3.0", features = ["esp32"] }
+log                    = "0.4.27"
+
+critical-section = "1.2.0"
+esp-alloc = "0.9.0"
+esp-backtrace = { version = "0.18.0", features = [
+  "esp32",
+  "panic-handler",
+  "println",
+] }
+esp-println = { version = "0.16.0", features = ["esp32", "log-04"] }
+embedded-hal-bus = "0.3.0"
+embedded-graphics = "0.8.1"
+mipidsi = "0.9.0"
+mousefood = { git = "https://github.com/j-g00da/mousefood", rev = "cc9f8fe372f09342537bc31a1355f77f2693d70b", default-features = false, features = [
+  "fonts",
+] }
+ratatui = { version = "0.30.0-alpha.5", default-features = false }
+static_cell = "2.1.1"
+
+[profile.dev]
+# Rust debug is too slow.
+# For debug builds always builds with some optimization
+opt-level = "s"
+
+[profile.release]
+codegen-units    = 1     # LLVM can perform better optimizations using a single thread
+debug            = 2
+debug-assertions = false
+incremental      = false
+lto              = 'fat'
+opt-level        = 's'
+overflow-checks  = false
