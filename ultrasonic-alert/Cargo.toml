@@ -1,15 +1,20 @@
 [package]
-edition = "2021"
-name    = "ultrasonic-alert"
-version = "0.1.0"
+edition      = "2024"
+name         = "ultrasonic-alert"
+rust-version = "1.88"
+version      = "0.1.0"
 
 [[bin]]
 name = "ultrasonic-alert"
 path = "./src/bin/main.rs"
 
 [dependencies]
+esp-hal = { version = "1.0.0", features = ["esp32"] }
+
+
+esp-bootloader-esp-idf = { version = "0.4.0", features = ["esp32"] }
+
 critical-section = "1.2.0"
-esp-hal          = { version = "1.0.0-beta.0", features = ["esp32"] }
 
 
 [profile.dev]
