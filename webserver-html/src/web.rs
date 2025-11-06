@@ -1,7 +1,7 @@
 use embassy_net::Stack;
 use embassy_time::Duration;
 use esp_alloc as _;
-use picoserve::{response::File, routing, AppBuilder, AppRouter, Router};
+use picoserve::{AppBuilder, AppRouter, Router, response::File, routing};
 
 pub struct Application;
 
@@ -58,6 +58,7 @@ impl Default for WebApp {
                 start_read_request: Some(Duration::from_secs(5)),
                 read_request: Some(Duration::from_secs(1)),
                 write: Some(Duration::from_secs(1)),
+                persistent_start_read_request: Some(Duration::from_secs(1)),
             })
             .keep_connection_alive()
         );
