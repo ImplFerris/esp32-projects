@@ -1,7 +1,7 @@
 use embassy_net::Stack;
 use embassy_time::Duration;
 use esp_alloc as _;
-use picoserve::{response::File, routing, AppBuilder, AppRouter, Router};
+use picoserve::{AppBuilder, AppRouter, Router, response::File, routing};
 
 pub struct Application;
 
@@ -20,7 +20,7 @@ pub const WEB_TASK_POOL_SIZE: usize = 2;
 
 #[embassy_executor::task(pool_size = WEB_TASK_POOL_SIZE)]
 pub async fn web_task(
-    id: usize,
+    task_id: usize,
     stack: Stack<'static>,
     router: &'static AppRouter<Application>,
     config: &'static picoserve::Config<Duration>,
@@ -30,17 +30,10 @@ pub async fn web_task(
     let mut tcp_tx_buffer = [0; 1024];
     let mut http_buffer = [0; 2048];
 
-    picoserve::listen_and_serve(
-        id,
-        router,
-        config,
-        stack,
-        port,
-        &mut tcp_rx_buffer,
-        &mut tcp_tx_buffer,
-        &mut http_buffer,
-    )
-    .await
+    picoserve::Server::new(router, config, &mut http_buffer)
+        .listen_and_serve(task_id, stack, port, &mut tcp_rx_buffer, &mut tcp_tx_buffer)
+        .await
+        .into_never()
 }
 
 pub struct WebApp {
@@ -58,6 +51,7 @@ impl Default for WebApp {
                 start_read_request: Some(Duration::from_secs(5)),
                 read_request: Some(Duration::from_secs(1)),
                 write: Some(Duration::from_secs(1)),
+                persistent_start_read_request: Some(Duration::from_secs(1)),
             })
             .keep_connection_alive()
         );
