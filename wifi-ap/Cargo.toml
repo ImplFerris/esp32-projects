@@ -1,46 +1,49 @@
 [package]
-edition = "2021"
-name = "wifi-ap"
+edition = "2024"
+name = "webserver-html"
+rust-version = "1.88"
 version = "0.1.0"
 
 [[bin]]
-name = "wifi-ap"
+name = "webserver-html"
 path = "./src/bin/main.rs"
 
 [dependencies]
-defmt = "0.3.10"
-embassy-net = { version = "0.6.0", features = [
+esp-hal = { version = "1.0.0", features = ["defmt", "esp32", "unstable"] }
+
+esp-rtos = { version = "0.2.0", features = [
+  "defmt",
+  "embassy",
+  "esp-alloc",
+  "esp-radio",
+  "esp32",
+] }
+
+defmt = "1.0.1"
+esp-bootloader-esp-idf = { version = "0.4.0", features = ["defmt", "esp32"] }
+
+embassy-net = { version = "0.7.1", features = [
+  "defmt",
   "dhcpv4",
   "medium-ethernet",
   "tcp",
   "udp",
 ] }
-embedded-io = "0.6.1"
-embedded-io-async = "0.6.1"
-esp-alloc = "0.7.0"
-esp-hal = { version = "1.0.0-beta.0", features = [
-  "defmt",
-  "esp32",
-  "unstable",
-] }
-esp-println = { version = "0.13.0", features = ["defmt-espflash", "esp32"] }
+embedded-io = { version = "0.7.1", features = ["defmt"] }
+embedded-io-async = { version = "0.7.0", features = ["defmt"] }
+esp-alloc = { version = "0.9.0", features = ["defmt"] }
+esp-println = { version = "0.16.1", features = ["defmt-espflash", "esp32"] }
 # for more networking protocol support see https://crates.io/crates/edge-net
-critical-section = "1.2.0"
-embassy-executor = { version = "0.7.0", features = [
-  "defmt",
-  "task-arena-size-65536",
-] }
-embassy-time = "0.4.0"
-esp-hal-embassy = { version = "0.7.0", features = ["esp32"] }
-esp-wifi = { version = "0.13.0", features = [
-  "builtin-scheduler",
+embassy-executor = { version = "0.9.1", features = ["defmt"] }
+embassy-time = { version = "0.5.0", features = ["defmt"] }
+esp-radio = { version = "0.17.0", features = [
   "defmt",
   "esp-alloc",
   "esp32",
   "smoltcp",
+  "unstable",
   "wifi",
 ] }
-heapless = { version = "0.8.0", default-features = false }
 smoltcp = { version = "0.12.0", default-features = false, features = [
   "defmt",
   "medium-ethernet",
@@ -54,9 +57,12 @@ smoltcp = { version = "0.12.0", default-features = false, features = [
   "socket-tcp",
   "socket-udp",
 ] }
-static_cell = { version = "2.1.0", features = ["nightly"] }
-picoserve = { version = "0.15.0", features = ["embassy"] }
-anyhow = { version = "1.0.95", default-features = false }
+
+critical-section = "1.2.0"
+static_cell = "2.1.1"
+
+picoserve = { version = "0.17.1", features = ["embassy"] }
+
 
 [profile.dev]
 # Rust debug is too slow.
