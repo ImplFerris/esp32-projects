@@ -1,34 +1,32 @@
 [package]
-edition = "2021"
-name = "oled-bmp"
-version = "0.1.0"
+edition      = "2024"
+name         = "oled-image"
+rust-version = "1.88"
+version      = "0.1.0"
 
 [[bin]]
-name = "oled-bmp"
+name = "oled-image"
 path = "./src/bin/main.rs"
 
 [dependencies]
-critical-section = "1.2.0"
-defmt = "0.3.10"
-embassy-executor = { version = "0.7.0", features = [
-  "defmt",
-  "task-arena-size-20480",
-] }
-embassy-time = "0.4.0"
-esp-hal = { version = "1.0.0-beta.0", features = [
-  "defmt",
-  "esp32",
-  "unstable",
-] }
-esp-hal-embassy = { version = "0.7.0", features = ["esp32"] }
-esp-println = { version = "0.13.0", features = ["defmt-espflash", "esp32"] }
-static_cell = { version = "2.1.0", features = ["nightly"] }
-ssd1306 = { git = "https://github.com/rust-embedded-community/ssd1306.git", rev = "f3a2f7aca421fbf3ddda45ecef0dfd1f0f12330e", features = [
-  "async",
-] }
-embedded-graphics = "0.8.1"
-tinybmp = "0.6.0"
+esp-hal = { version = "1.0.0", features = ["defmt", "esp32", "unstable"] }
 
+esp-rtos = { version = "0.2.0", features = ["defmt", "embassy", "esp32"] }
+
+defmt                  = "1.0.1"
+esp-bootloader-esp-idf = { version = "0.4.0", features = ["defmt", "esp32"] }
+
+embassy-executor = { version = "0.9.1", features = ["defmt"] }
+embassy-time     = { version = "0.5.0", features = ["defmt"] }
+esp-println      = { version = "0.16.1", features = ["defmt-espflash", "esp32"] }
+
+critical-section = "1.2.0"
+static_cell      = "2.1.1"
+
+ssd1306 = { version = "0.10.0", features = ["async"] }
+embedded-graphics = "0.8.1"
+
+tinybmp = "0.6.0"
 
 [profile.dev]
 # Rust debug is too slow.
@@ -36,10 +34,10 @@ tinybmp = "0.6.0"
 opt-level = "s"
 
 [profile.release]
-codegen-units = 1        # LLVM can perform better optimizations using a single thread
-debug = 2
+codegen-units    = 1     # LLVM can perform better optimizations using a single thread
+debug            = 2
 debug-assertions = false
-incremental = false
-lto = 'fat'
-opt-level = 's'
-overflow-checks = false
+incremental      = false
+lto              = 'fat'
+opt-level        = 's'
+overflow-checks  = false
