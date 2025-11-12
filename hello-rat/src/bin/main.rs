@@ -46,7 +46,7 @@ esp_bootloader_esp_idf::esp_app_desc!();
 
 #[main]
 fn main() -> ! {
-    // generator version: 0.6.0
+    // generator version: 1.0.0
 
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
     let peripherals = esp_hal::init(config);
@@ -83,8 +83,8 @@ fn main() -> ! {
     display.clear(Rgb565::BLACK).unwrap();
 
     let backend = EmbeddedBackend::new(&mut display, EmbeddedBackendConfig::default());
-    let mut terminal = Terminal::new(backend).unwrap();
 
+    let mut terminal = Terminal::new(backend).unwrap();
     loop {
         terminal.draw(draw).unwrap();
     }
