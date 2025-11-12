@@ -5,9 +5,9 @@
     "RUSTUP_TOOLCHAIN": "stable"
   },
   "rust-analyzer.check.extraEnv": {
-    "RUSTUP_TOOLCHAIN": "book-1.0.0-beta"
+    "RUSTUP_TOOLCHAIN": "book-1.0.0"
   },
   "rust-analyzer.cargo.extraEnv": {
-    "RUSTUP_TOOLCHAIN": "book-1.0.0-beta"
+    "RUSTUP_TOOLCHAIN": "book-1.0.0"
   },
 }

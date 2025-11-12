@@ -9,15 +9,15 @@ name = "hello-rat"
 path = "./src/bin/main.rs"
 
 [dependencies]
-esp-hal = { version = "=1.0.0-rc.1", features = ["defmt", "esp32", "unstable"] }
+esp-hal = { version = "1.0.0", features = ["defmt", "esp32", "unstable"] }
 
 
 defmt = "1.0.1"
-esp-bootloader-esp-idf = { version = "0.3.0", features = ["esp32"] }
+esp-bootloader-esp-idf = { version = "0.4.0", features = ["defmt", "esp32"] }
 
 critical-section = "1.2.0"
 esp-alloc = { version = "0.9.0", features = ["defmt"] }
-esp-println = { version = "0.16.0", features = ["defmt-espflash", "esp32"] }
+esp-println = { version = "0.16.1", features = ["defmt-espflash", "esp32"] }
 
 embedded-hal-bus = { version = "0.3" }
 display-interface-spi = "0.5"
@@ -28,6 +28,7 @@ mousefood = { git = "https://github.com/j-g00da/mousefood", rev = "cc9f8fe372f09
     "fonts",
 ] }
 ratatui = { version = "0.30.0-alpha.5", default-features = false }
+
 
 [profile.dev]
 # Rust debug is too slow.

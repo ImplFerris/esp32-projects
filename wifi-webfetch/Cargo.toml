@@ -1,32 +1,39 @@
 [package]
-edition = "2021"
+edition = "2024"
 name = "wifi-webfetch"
+rust-version = "1.88"
 version = "0.1.0"
 
 [[bin]]
-name = "wifi-website"
+name = "wifi-webfetch"
 path = "./src/bin/main.rs"
 
 [dependencies]
-critical-section = "1.2.0"
-defmt = "0.3.10"
-embedded-io = "0.6.1"
-esp-alloc = "0.7.0"
-esp-hal = { version = "1.0.0-beta.0", features = [
+esp-hal = { version = "1.0.0", features = ["defmt", "esp32", "unstable"] }
+
+esp-rtos = { version = "0.2.0", features = [
   "defmt",
+  "esp-alloc",
+  "esp-radio",
   "esp32",
-  "unstable",
 ] }
-esp-println = { version = "0.13.0", features = ["defmt-espflash", "esp32"] }
-esp-wifi = { version = "0.13.0", features = [
-  "builtin-scheduler",
+
+defmt = "1.0.1"
+esp-bootloader-esp-idf = { version = "0.4.0", features = ["defmt", "esp32"] }
+
+critical-section = "1.2.0"
+# embedded-io = { version = "0.7.1", features = ["defmt"] }
+embedded-io = { version = "0.6.1" }
+esp-alloc = { version = "0.9.0", features = ["defmt"] }
+esp-println = { version = "0.16.1", features = ["defmt-espflash", "esp32"] }
+esp-radio = { version = "0.17.0", features = [
   "defmt",
   "esp-alloc",
   "esp32",
   "smoltcp",
+  "unstable",
   "wifi",
 ] }
-heapless = { version = "0.8.0", default-features = false }
 smoltcp = { version = "0.12.0", default-features = false, features = [
   "defmt",
   "medium-ethernet",
@@ -40,11 +47,12 @@ smoltcp = { version = "0.12.0", default-features = false, features = [
   "socket-tcp",
   "socket-udp",
 ] }
+
 blocking-network-stack = { git = "https://github.com/bjoernQ/blocking-network-stack.git", rev = "b3ecefc222d8806edd221f266999ca339c52d34e", default-features = false, features = [
   "dhcpv4",
   "tcp",
 ] }
-
+heapless = { version = "0.9.1" }
 
 [profile.dev]
 # Rust debug is too slow.

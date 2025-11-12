@@ -1,6 +1,7 @@
 [package]
-edition = "2021"
-name    = "servo-motor"
+edition = "2024"
+name = "servo-motor"
+rust-version = "1.88"
 version = "0.1.0"
 
 [[bin]]
@@ -8,16 +9,14 @@ name = "servo-motor"
 path = "./src/bin/main.rs"
 
 [dependencies]
-critical-section = "1.2.0"
-defmt = "0.3.10"
-esp-hal = { version = "1.0.0-beta.0", features = [
-  "defmt",
-  "esp32",
-  "unstable",
-] }
-esp-println = { version = "0.13.0", features = ["defmt-espflash", "esp32"] }
-embedded-hal = "1.0.0"
+esp-hal = { version = "1.0.0", features = ["esp32", "unstable"] }
 
+
+esp-bootloader-esp-idf = { version = "0.4.0", features = ["esp32"] }
+
+critical-section = "1.2.0"
+
+embedded-hal = "1.0.0"
 
 [profile.dev]
 # Rust debug is too slow.
@@ -25,10 +24,10 @@ embedded-hal = "1.0.0"
 opt-level = "s"
 
 [profile.release]
-codegen-units    = 1     # LLVM can perform better optimizations using a single thread
-debug            = 2
+codegen-units = 1        # LLVM can perform better optimizations using a single thread
+debug = 2
 debug-assertions = false
-incremental      = false
-lto              = 'fat'
-opt-level        = 's'
-overflow-checks  = false
+incremental = false
+lto = 'fat'
+opt-level = 's'
+overflow-checks = false
