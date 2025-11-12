@@ -1,27 +1,29 @@
 [package]
-edition = "2021"
-name = "tft-display-image"
-version = "0.1.0"
+edition      = "2024"
+name         = "tft-display-image"
+rust-version = "1.88"
+version      = "0.1.0"
 
 [[bin]]
 name = "tft-display-image"
 path = "./src/bin/main.rs"
 
 [dependencies]
+esp-hal = { version = "1.0.0", features = ["defmt", "esp32", "unstable"] }
+
+
+defmt                  = "1.0.1"
+esp-bootloader-esp-idf = { version = "0.4.0", features = ["defmt", "esp32"] }
+
 critical-section = "1.2.0"
-defmt = "0.3.10"
-esp-hal = { version = "1.0.0-beta.0", features = [
-    "defmt",
-    "esp32",
-    "unstable",
-] }
-esp-println = { version = "0.13.0", features = ["defmt-espflash", "esp32"] }
-embedded-hal-bus = { version = "0.1" }
+esp-println      = { version = "0.16.1", features = ["defmt-espflash", "esp32"] }
+
+embedded-hal-bus = { version = "0.3" }
 display-interface-spi = "0.5"
 ili9341 = "0.6.0"
 embedded-graphics = "0.8.1"
-tinybmp = "0.6.0"
 
+tinybmp = "0.6.0"
 
 [profile.dev]
 # Rust debug is too slow.
@@ -29,10 +31,10 @@ tinybmp = "0.6.0"
 opt-level = "s"
 
 [profile.release]
-codegen-units = 1        # LLVM can perform better optimizations using a single thread
-debug = 2
+codegen-units    = 1     # LLVM can perform better optimizations using a single thread
+debug            = 2
 debug-assertions = false
-incremental = false
-lto = 'fat'
-opt-level = 's'
-overflow-checks = false
+incremental      = false
+lto              = 'fat'
+opt-level        = 's'
+overflow-checks  = false
