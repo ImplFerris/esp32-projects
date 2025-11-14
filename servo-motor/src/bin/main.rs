@@ -41,9 +41,9 @@ fn main() -> ! {
     let mut hstimer0 = ledc.timer::<HighSpeed>(timer::Number::Timer0);
     hstimer0
         .configure(timer::config::Config {
-            duty: timer::config::Duty::Duty5Bit,
+            duty: timer::config::Duty::Duty12Bit,
             clock_source: timer::HSClockSource::APBClk,
-            frequency: Rate::from_khz(24),
+            frequency: Rate::from_hz(50),
         })
         .unwrap();
 
