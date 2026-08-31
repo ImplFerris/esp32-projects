@@ -43,6 +43,19 @@ fn panic(_: &core::panic::PanicInfo) -> ! {
 // For more information see: <https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/app_image_format.html#application-description>
 esp_bootloader_esp_idf::esp_app_desc!();
 
+//Custom Orientation since the driver doesn't provide normal texting mode
+struct CustomOrientation(u8);
+
+impl Mode for CustomOrientation{
+    fn mode(&self) -> u8 {
+        self.0
+    }
+
+    fn is_landscape(&self) -> bool {
+        false
+    }
+}
+
 #[main]
 fn main() -> ! {
     // generator version: 1.0.0
@@ -73,7 +86,7 @@ fn main() -> ! {
         interface,
         reset,
         &mut Delay::new(),
-        Orientation::Portrait,
+        CustomOrientation(0x00), //with this your text/image will not be mirrored nor having different colors 
         DisplaySize240x320,
     )
     .unwrap();
